@@ -37,6 +37,8 @@ class AdminPanelProvider extends PanelProvider
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable(),
             ], isRequired: true)
+            ->emailVerification()
+            ->emailChangeVerification()
             ->colors([
                 'primary' => Color::Amber,
             ])
