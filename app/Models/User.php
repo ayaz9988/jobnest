@@ -28,8 +28,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'role', 'profile', 'location'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Fillable(['name', 'email', 'password', 'role', 'profile', 'location', 'email_verified_at'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'two_factor_confirmed_at'])]
 // class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 
 class User extends Authenticatable implements PasskeyUser
@@ -61,4 +61,33 @@ class User extends Authenticatable implements PasskeyUser
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
     }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'user_skill', 'user_id', 'skill_id')
+        ->withPivot(['proficiency', 'years_of_experience'])
+        ->withTimestamps();
+    }
+
+    public function resumes()
+    {
+        return $this->hasMany(Resume::class);
+    }
+
+    public function jobListings()
+    {
+        return $this->hasMany(JobListing::class, 'posted_by');
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    public function savedJobListings()
+    {
+        return $this->belongsToMany(JobListing::class, 'saved_job_listings')
+        ->withTimestamps();
+    }
+
 }
