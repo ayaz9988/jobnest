@@ -26,6 +26,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            // add this after there a policy for all resources ->strictAuthorization()
             ->id('admin')
             ->path('admin')
             ->login()

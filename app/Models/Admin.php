@@ -12,6 +12,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use RuntimeException;
+use Illuminate\Validation\ValidationException;
 
 class Admin extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, MustVerifyEmail
 {
@@ -54,5 +56,60 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
     public function isSuperAdmin(): bool
     {
         return $this->role === 'super_admin';
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Admin $admin) {
+            if (! $admin->isSuperAdmin() || ! $admin->is_active) {
+                return;
+            }
+
+            $activeSuperAdminCount = Admin::where('is_active', true)
+                ->where('role', 'super_admin')
+                ->count();
+
+            if ($activeSuperAdminCount <= 1) {
+                throw new RuntimeException(
+                    'The last active super admin cannot be deleted.',
+                );
+            }
+        });
+
+        static::saving(function (Admin $admin) {
+            if (! $admin->exists) {
+                return;
+            }
+
+            $wasActiveSuperAdmin = $admin->getOriginal('role') === 'super_admin' && (bool) $admin->getOriginal('is_active');
+            $willBeActiveSuperAdmin = $admin->role === 'super_admin' && (bool) $admin->is_active;
+
+            if (! $wasActiveSuperAdmin || $willBeActiveSuperAdmin) {
+                return;
+            }
+
+            $otherActiveSuperAdmins = static::query()
+                ->whereKeyNot($admin->getKey())
+                ->where('role', 'super_admin')
+                ->where('is_active', true)
+                ->count();
+
+            if($otherActiveSuperAdmins === 0) {
+                throw ValidationException::withMessages([
+                    'role' => 'The last active super admin cannot be deactivated or demoted.',
+                ]);
+            }
+
+            if (
+                $admin->isDirty('role')
+                && $admin->getOriginal('role') === 'super_admin'
+                && $admin->role !== 'super_admin'
+                && auth('admin')->id() === $admin->getKey()
+            ) {
+                throw ValidationException::withMessages([
+                    'role' => 'You cannot change your own super admin role.',
+                ]);
+            }
+        });
     }
 }
