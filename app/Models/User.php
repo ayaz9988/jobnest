@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -25,6 +27,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property string $role
+ * @property string|null $profile
+ * @property string|null $location
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -48,6 +53,24 @@ class User extends Authenticatable implements PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * @return BelongsToMany<Skill, $this>
+     */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'user_skill')
+            ->withPivot(['proficiency', 'years_of_experience'])
+            ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<Resume, $this>
+     */
+    public function resumes(): HasMany
+    {
+        return $this->hasMany(Resume::class);
     }
 
     /**
