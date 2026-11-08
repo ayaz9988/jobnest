@@ -42,3 +42,4 @@ yarn-error.log
 /opencode.jsonc
 docs/*
 !docs/users-table.md
+!docs/filament-user-panel.md
