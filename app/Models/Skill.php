@@ -18,11 +18,21 @@ class Skill extends Model
     protected $fillable = ['name'];
 
     /**
+     * @return BelongsToMany<JobListing, $this>
+     */
+    public function jobListings(): BelongsToMany
+    {
+        return $this->belongsToMany(JobListing::class, 'job_listing_skill', 'skill_id', 'job_listing_id')
+            ->withPivot('is_required')
+            ->withTimestamps();
+    }
+
+    /**
      * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_skill')
+        return $this->belongsToMany(User::class, 'user_skill', 'skill_id', 'user_id')
             ->withPivot(['proficiency', 'years_of_experience'])
             ->withTimestamps();
     }

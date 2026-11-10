@@ -1,8 +1,11 @@
 /.phpunit.cache
 /node_modules
 /public/build
+/public/css/filament
 /public/fonts-manifest.dev.json
+/public/fonts/filament
 /public/hot
+/public/js/filament
 /public/storage
 /storage/*.key
 /storage/pail
@@ -37,4 +40,6 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
-docs/authentication.md
+docs/*
+!docs/users-table.md
+!docs/filament-user-panel.md

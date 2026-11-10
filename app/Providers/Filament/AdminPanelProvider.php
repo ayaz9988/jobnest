@@ -26,6 +26,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            // add this after there a policy for all resources ->strictAuthorization()
             ->id('admin')
             ->path('admin')
             ->login()
@@ -37,6 +38,8 @@ class AdminPanelProvider extends PanelProvider
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable(),
             ], isRequired: true)
+            ->emailVerification()
+            ->emailChangeVerification()
             ->colors([
                 'primary' => Color::Amber,
             ])
