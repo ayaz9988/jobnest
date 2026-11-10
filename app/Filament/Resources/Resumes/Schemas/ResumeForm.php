@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\Resumes\Schemas;
 
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -12,19 +13,26 @@ class ResumeForm
     {
         return $schema
             ->components([
-                TextInput::make('user_id')
+                Select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                FileUpload::make('file_path')
+                    ->label('Resume file')
+                    ->disk('local')
+                    ->directory('resumes')
+                    ->visibility('private')
+                    ->acceptedFileTypes([
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ])
+                    ->maxSize(5120)
+                    ->storeFileNamesIn('file_name')
+                    ->preventFilePathTampering()
                     ->required()
-                    ->numeric(),
-                TextInput::make('file_url')
-                    ->url()
-                    ->required(),
-                TextInput::make('file_name')
-                    ->required(),
-                TextInput::make('mime_type')
-                    ->default(null),
-                TextInput::make('file_size')
-                    ->numeric()
-                    ->default(null),
+                    ->helperText('PDF, DOC or DOCX up to 5 MB.'),
                 Toggle::make('is_primary')
                     ->required(),
             ]);

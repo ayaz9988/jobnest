@@ -34,7 +34,8 @@ class AdminForm
                             return true;
                         }
 
-                        return $record->isSuperAdmin()
+                        return $record->is_active 
+                        && $record->isSuperAdmin()
                         && Admin::where('is_active', true)
                             ->where('role', 'super_admin')
                             ->count() <= 1;
@@ -50,7 +51,8 @@ class AdminForm
                             return true;
                         }
 
-                        return $record->isSuperAdmin()
+                        return $record->is_active
+                        && $record->isSuperAdmin()
                         && Admin::where('is_active', true)
                             ->where('role', 'super_admin')
                             ->count() <= 1;

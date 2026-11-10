@@ -27,11 +27,12 @@ class AdminPolicy
     }
 
     public function delete(Admin $admin, Admin $target): bool
-    {   
+    {
         if (! $this->isSuperAdmin($admin) || $admin->is($target)) {
             return false;
         }
-        if ($target->isSuperAdmin() && $this->activeSuperAdminCount() <= 1) {
+
+        if ($target->is_active && $target->isSuperAdmin() && $this->activeSuperAdminCount() <= 1) {
             return false;
         }
 
