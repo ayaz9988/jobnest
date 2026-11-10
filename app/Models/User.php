@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -25,6 +27,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property string $role
+ * @property string|null $profile
+ * @property string|null $location
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -51,6 +56,49 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * @return BelongsToMany<Skill, $this>
+     */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'user_skill', 'user_id', 'skill_id')
+            ->withPivot(['proficiency', 'years_of_experience'])
+            ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<Resume, $this>
+     */
+    public function resumes(): HasMany
+    {
+        return $this->hasMany(Resume::class);
+    }
+
+    /**
+     * @return HasMany<JobListing, $this>
+     */
+    public function jobListings(): HasMany
+    {
+        return $this->hasMany(JobListing::class, 'posted_by');
+    }
+
+    /**
+     * @return HasMany<Application, $this>
+     */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    /**
+     * @return BelongsToMany<JobListing, $this>
+     */
+    public function savedJobListings(): BelongsToMany
+    {
+        return $this->belongsToMany(JobListing::class, 'saved_job_listings')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string
@@ -61,33 +109,4 @@ class User extends Authenticatable implements PasskeyUser
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
     }
-
-    public function skills()
-    {
-        return $this->belongsToMany(Skill::class, 'user_skill', 'user_id', 'skill_id')
-        ->withPivot(['proficiency', 'years_of_experience'])
-        ->withTimestamps();
-    }
-
-    public function resumes()
-    {
-        return $this->hasMany(Resume::class);
-    }
-
-    public function jobListings()
-    {
-        return $this->hasMany(JobListing::class, 'posted_by');
-    }
-
-    public function applications()
-    {
-        return $this->hasMany(Application::class);
-    }
-
-    public function savedJobListings()
-    {
-        return $this->belongsToMany(JobListing::class, 'saved_job_listings')
-        ->withTimestamps();
-    }
-
 }
