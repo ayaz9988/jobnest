@@ -2,24 +2,14 @@
 
 namespace App\Models;
 
-use Database\Factories\ResumeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Resume extends Model
 {
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
-class Resume extends Model
-{
-    /** @use HasFactory<ResumeFactory> */
     use HasFactory;
 
-    /**
-     * @var list<string>
-     */
     protected $fillable = [
         'file_name',
         'mime_type',
@@ -29,9 +19,6 @@ class Resume extends Model
         'is_primary',
     ];
 
-    /**
-     * @var array<string, string>
-     */
     protected $casts = [
         'file_size' => 'integer',
         'is_primary' => 'boolean',
@@ -82,25 +69,19 @@ class Resume extends Model
         return basename($this->file_name ?: $this->file_path ?: 'resume');
     }
 
-    public function user()
-    /**
-     * @return BelongsTo<User, $this>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * @return HasMany<Application, $this>
-     */
-    public function applications(): HasMany
-    {
-        return $this->hasMany(Application::class);
-    }
-
     public function downloadUrl(): string
     {
         return route('resumes.download', $this);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
 }
