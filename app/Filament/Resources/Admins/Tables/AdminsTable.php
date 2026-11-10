@@ -5,8 +5,10 @@ namespace App\Filament\Resources\Admins\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 
 class AdminsTable
@@ -43,6 +45,10 @@ class AdminsTable
             ])
             ->filters([
                 //
+                Filter::make('is_active')
+                ->label('Active Admins')
+                ->toggle()
+                ->query(fn (Builder $query): Builder => $query->where('is_active', true))
             ])
             ->recordActions([
                 EditAction::make(),
