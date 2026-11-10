@@ -19,8 +19,11 @@
         </div>
         <flux:menu.separator />
         <flux:menu.radio.group>
+            <flux:menu.item :href="route('profile.show')" icon="user" wire:navigate>
+                ملفي الشخصي
+            </flux:menu.item>
             <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                {{ __('Settings') }}
+                الإعدادات
             </flux:menu.item>
             <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
@@ -31,7 +34,7 @@
                     class="w-full cursor-pointer"
                     data-test="logout-button"
                 >
-                    {{ __('Log out') }}
+                    تسجيل الخروج
                 </flux:menu.item>
             </form>
         </flux:menu.radio.group>

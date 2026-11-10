@@ -9,15 +9,14 @@ use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use RuntimeException;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class Admin extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, MustVerifyEmail
 {
-    use InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, HasFactory, Notifiable;
+    use InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, Notifiable;
 
     //
     protected $fillable = [
@@ -94,7 +93,7 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
                 ->where('is_active', true)
                 ->count();
 
-            if($otherActiveSuperAdmins === 0) {
+            if ($otherActiveSuperAdmins === 0) {
                 throw ValidationException::withMessages([
                     'role' => 'The last active super admin cannot be deactivated or demoted.',
                 ]);
