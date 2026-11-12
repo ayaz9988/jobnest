@@ -5,7 +5,6 @@ use Flux\Flux;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
@@ -178,7 +177,7 @@ new #[Title('ملفي الشخصي')] class extends Component {
         }
 
         $user->resumes()->create([
-            'file_url' => $path,
+            'file_path' => $path,
             'file_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'file_size' => (int) $file->getSize(),
@@ -210,8 +209,6 @@ new #[Title('ملفي الشخصي')] class extends Component {
     {
         $user = Auth::user();
         $resume = $user->resumes()->findOrFail($resumeId);
-
-        Storage::disk('local')->delete($resume->file_url);
 
         $wasPrimary = $resume->is_primary;
         $resume->delete();

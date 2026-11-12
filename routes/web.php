@@ -16,8 +16,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('resumes/{resume}/download', function (Resume $resume) {
         abort_unless($resume->user_id === Auth::id(), 403);
+        abort_unless($resume->hasStoredFile(), 404);
 
-        return Storage::disk('local')->download($resume->file_url, $resume->file_name);
+        $disk = Storage::disk('local');
+
+        return response()->streamDownload(function () use ($disk, $resume): void {
+            $stream = $disk->readStream($resume->file_path);
+
+            if (is_resource($stream)) {
+                fpassthru($stream);
+                fclose($stream);
+            }
+        }, $resume->downloadName(), [
+            'Content-Type' => $resume->mime_type ?: 'application/octet-stream',
+        ]);
     })->name('resumes.download');
 });
 

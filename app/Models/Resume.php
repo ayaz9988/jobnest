@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class Resume extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'file_name',
         'mime_type',
@@ -33,7 +33,7 @@ class Resume extends Model
 
             $disk = Storage::disk('local');
 
-            if ($disk->exists($resume->file_path)) {
+            if (self::isStoredFilePath($resume->file_path)) {
                 $resume->file_size = $disk->size($resume->file_path);
 
                 $resolvedPath = $disk->path($resume->file_path);
@@ -52,13 +52,13 @@ class Resume extends Model
 
             $oldPath = $resume->getOriginal('file_path');
 
-            if ($oldPath && $oldPath !== $resume->file_path) {
+            if ($oldPath && $oldPath !== $resume->file_path && self::isStoredFilePath($oldPath)) {
                 Storage::disk('local')->delete($oldPath);
             }
         });
 
         static::deleted(function (Resume $resume): void {
-            if (filled($resume->file_path)) {
+            if (self::isStoredFilePath($resume->file_path)) {
                 Storage::disk('local')->delete($resume->file_path);
             }
         });
@@ -69,19 +69,49 @@ class Resume extends Model
         return basename($this->file_name ?: $this->file_path ?: 'resume');
     }
 
-    public function downloadUrl(): string
+    public function hasStoredFile(): bool
     {
-        return route('resumes.download', $this);
+        return self::isStoredFilePath($this->file_path);
     }
 
-    public function user()
+    private static function isStoredFilePath(?string $path): bool
+    {
+        if (blank($path)) {
+            return false;
+        }
+
+        $disk = Storage::disk('local');
+
+        try {
+            $root = realpath($disk->path('resumes'));
+            $fullPath = realpath($disk->path($path));
+        } catch (Throwable) {
+            return false;
+        }
+
+        return $root !== false
+            && $fullPath !== false
+            && str_starts_with($fullPath, $root.DIRECTORY_SEPARATOR);
+    }
+
+    public function downloadUrl(): string
+    {
+        return route('resumes.download', ['resume' => $this]);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function applications()
+    /**
+     * @return HasMany<Application, $this>
+     */
+    public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
     }
-
 }

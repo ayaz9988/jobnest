@@ -14,22 +14,18 @@ class ResumeDownloadController extends Controller
         Gate::forUser(auth('admin')->user())->authorize('download', $resume);
 
         $disk = Storage::disk('local');
-        $path = $resume->file_path;
 
-        abort_unless(
-            filled($path)
-            && str_starts_with($path, 'resumes/')
-            && $disk->exists($path),
-            404,
-        );
+        abort_unless($resume->hasStoredFile(), 404);
 
-        return response()->streamDownload(function () use ($disk, $path): void {
-            $stream = $disk->readStream($path);
+        return response()->streamDownload(function () use ($disk, $resume): void {
+            $stream = $disk->readStream($resume->file_path);
 
-            if ($stream !== false) {
+            if (is_resource($stream)) {
                 fpassthru($stream);
                 fclose($stream);
             }
-        }, $resume->downloadName());
+        }, $resume->downloadName(), [
+            'Content-Type' => $resume->mime_type ?: 'application/octet-stream',
+        ]);
     }
 }
