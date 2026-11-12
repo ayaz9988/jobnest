@@ -10,6 +10,24 @@ use Filament\Schemas\Schema;
 
 class AdminForm
 {
+    private static function isProtectedAdmin(?Admin $record): bool
+    {
+        if (! $record) {
+            return false;
+        }
+
+        if ($record->is(auth('admin')->user())) {
+            return true;
+        }
+
+        return $record->isSuperAdmin()
+            && $record->is_active
+            && Admin::query()
+                ->where('role', 'super_admin')
+                ->where('is_active', true)
+                ->count() <= 1;
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -22,41 +40,14 @@ class AdminForm
                     ->required(),
                 TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn (?string $state): bool => filled($state)),
                 Select::make('role')
                     ->options(['admin' => 'Admin', 'super_admin' => 'Super admin'])
-                    ->disabled(function (?Admin $record) {
-                        if (! $record) {
-                            return false;
-                        }
-
-                        if ($record->is(auth('admin')->user())) {
-                            return true;
-                        }
-
-                        return $record->is_active 
-                        && $record->isSuperAdmin()
-                        && Admin::where('is_active', true)
-                            ->where('role', 'super_admin')
-                            ->count() <= 1;
-                    }),
+                    ->disabled(fn (?Admin $record): bool => self::isProtectedAdmin($record)),
                 Toggle::make('is_active')
                     ->required()
-                    ->disabled(function (?Admin $record) {
-                        if (! $record) {
-                            return false;
-                        }
-
-                        if ($record->is(auth('admin')->user())) {
-                            return true;
-                        }
-
-                        return $record->is_active
-                        && $record->isSuperAdmin()
-                        && Admin::where('is_active', true)
-                            ->where('role', 'super_admin')
-                            ->count() <= 1;
-                    }),
+                    ->disabled(fn (?Admin $record): bool => self::isProtectedAdmin($record)),
             ]);
     }
 }

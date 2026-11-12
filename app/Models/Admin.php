@@ -64,11 +64,13 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
                 return;
             }
 
-            $activeSuperAdminCount = Admin::where('is_active', true)
+            $activeSuperAdmins = static::query()
+                ->where('is_active', true)
                 ->where('role', 'super_admin')
-                ->count();
+                ->lockForUpdate()
+                ->get();
 
-            if ($activeSuperAdminCount <= 1) {
+            if ($activeSuperAdmins->count() <= 1) {
                 throw new RuntimeException(
                     'The last active super admin cannot be deleted.',
                 );
@@ -101,7 +103,6 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
 
             if (
                 $admin->isDirty('role')
-                && $admin->getOriginal('role') === 'super_admin'
                 && $admin->role !== 'super_admin'
                 && auth('admin')->id() === $admin->getKey()
             ) {
