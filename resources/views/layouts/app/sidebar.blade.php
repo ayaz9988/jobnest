@@ -18,6 +18,12 @@
                     <flux:sidebar.item icon="user" :href="route('profile.show')" :current="request()->routeIs('profile.show')" wire:navigate>
                         ملفي الشخصي
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="briefcase" :href="route('jobs.index')" :current="request()->routeIs('jobs.index', 'jobs.show')" wire:navigate>
+                        الوظائف
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="bookmark" :href="route('jobs.saved')" :current="request()->routeIs('jobs.saved')" wire:navigate>
+                        الوظائف المحفوظة
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
