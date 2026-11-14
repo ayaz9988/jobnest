@@ -14,6 +14,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
+    Route::livewire('notifications', 'pages::notifications.index')->name('notifications.index');
+
     Route::livewire('jobs', 'pages::jobs.index')->name('jobs.index');
 
     Route::livewire('jobs/saved', 'pages::jobs.saved')->name('jobs.saved');
