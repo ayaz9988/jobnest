@@ -16,7 +16,7 @@ class JobListingForm
         return $schema
             ->components([
                 Select::make('posted_by')
-                    ->relationship('postedby', 'name',
+                    ->relationship('postedBy', 'name',
                         fn (Builder $query) => $query->where('role', 'employer')
                     )
                     ->searchable()

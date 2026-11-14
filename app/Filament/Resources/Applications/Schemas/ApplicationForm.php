@@ -26,7 +26,7 @@ class ApplicationForm
                     ->afterStateUpdated(fn (Set $set) => $set('resume_id', null))
                     ->required(),
                 Select::make('job_listing_id')
-                    ->relationship('joblisting', 'title')
+                    ->relationship('jobListing', 'title')
                     ->searchable()
                     ->preload()
                     ->required(),

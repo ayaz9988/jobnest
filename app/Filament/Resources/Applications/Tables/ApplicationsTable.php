@@ -14,14 +14,18 @@ class ApplicationsTable
     {
         return $table
             ->columns([
-                TextColumn::make('user_id')
-                    ->numeric()
+                TextColumn::make('user.name')
+                    ->label('Applicant')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('job_listing_id')
-                    ->numeric()
+                TextColumn::make('jobListing.title')
+                    ->label('Job listing')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('resume_id')
-                    ->numeric()
+                TextColumn::make('resume.file_name')
+                    ->label('Resume')
+                    ->placeholder('—')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge(),

@@ -14,11 +14,14 @@ class JobListingsTable
     {
         return $table
             ->columns([
-                TextColumn::make('posted_by')
-                    ->numeric()
+                TextColumn::make('postedBy.name')
+                    ->label('Posted by')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('category_id')
-                    ->numeric()
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->placeholder('—')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
                     ->searchable(),
