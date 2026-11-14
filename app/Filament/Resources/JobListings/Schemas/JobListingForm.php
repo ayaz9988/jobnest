@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class JobListingForm
 {
@@ -14,12 +15,18 @@ class JobListingForm
     {
         return $schema
             ->components([
-                TextInput::make('posted_by')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('category_id')
-                    ->numeric()
-                    ->default(null),
+                Select::make('posted_by')
+                    ->relationship('postedby', 'name',
+                        fn (Builder $query) => $query->where('role', 'employer')
+                    )
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Select::make('category_id')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('title')
                     ->required(),
                 Textarea::make('description')
@@ -27,12 +34,12 @@ class JobListingForm
                     ->columnSpanFull(),
                 Select::make('employment_type')
                     ->options([
-            'full_time' => 'Full time',
-            'part_time' => 'Part time',
-            'contract' => 'Contract',
-            'internship' => 'Internship',
-            'temporary' => 'Temporary',
-        ])
+                    'full_time' => 'Full time',
+                    'part_time' => 'Part time',
+                    'contract' => 'Contract',
+                    'internship' => 'Internship',
+                    'temporary' => 'Temporary',
+                ])
                     ->required(),
                 Select::make('workplace_type')
                     ->options(['on_site' => 'On site', 'remote' => 'Remote', 'hybrid' => 'Hybrid'])
