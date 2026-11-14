@@ -89,6 +89,16 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(Application::class);
     }
 
+    public function isSeeker(): bool
+    {
+        return $this->role === 'seeker';
+    }
+
+    public function isEmployer(): bool
+    {
+        return $this->role === 'employer';
+    }
+
     /**
      * @return BelongsToMany<JobListing, $this>
      */

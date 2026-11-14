@@ -12,6 +12,11 @@ use Livewire\WithPagination;
 new #[Title('الوظائف المحفوظة')] class extends Component {
     use WithPagination;
 
+    public function mount(): void
+    {
+        abort_unless(Auth::user()->isSeeker(), 403);
+    }
+
     public function remove(int $jobListingId): void
     {
         Auth::user()->savedJobListings()->detach($jobListingId);
