@@ -14,6 +14,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
+    Route::livewire('jobs', 'pages::jobs.index')->name('jobs.index');
+
+    Route::livewire('jobs/saved', 'pages::jobs.saved')->name('jobs.saved');
+
+    Route::livewire('jobs/{jobListing}', 'pages::jobs.show')->name('jobs.show');
+
     Route::get('resumes/{resume}/download', function (Resume $resume) {
         abort_unless($resume->user_id === Auth::id(), 403);
         abort_unless($resume->hasStoredFile(), 404);

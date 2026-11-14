@@ -163,7 +163,7 @@ class SeekerProfileTest extends TestCase
 
         $this->assertSame('my-cv.pdf', $resume->file_name);
         $this->assertTrue($resume->is_primary);
-        Storage::disk('local')->assertExists($resume->file_url);
+        Storage::disk('local')->assertExists($resume->file_path);
     }
 
     public function test_only_allowed_resume_file_types_are_accepted(): void
@@ -206,7 +206,7 @@ class SeekerProfileTest extends TestCase
 
         $primary = Resume::factory()->primary()->create([
             'user_id' => $user->id,
-            'file_url' => $path,
+            'file_path' => $path,
         ]);
         $replacement = Resume::factory()->create(['user_id' => $user->id]);
 
@@ -232,7 +232,7 @@ class SeekerProfileTest extends TestCase
 
         $resume = Resume::factory()->create([
             'user_id' => $owner->id,
-            'file_url' => $path,
+            'file_path' => $path,
         ]);
 
         $this->actingAs($owner)
