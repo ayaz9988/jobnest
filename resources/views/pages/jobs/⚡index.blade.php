@@ -41,6 +41,9 @@ new #[Title('الوظائف')] class extends Component {
     public function toggleSave(int $jobListingId): void
     {
         $user = Auth::user();
+
+        abort_unless($user->isSeeker(), 403);
+
         $jobListing = JobListing::query()->findOrFail($jobListingId);
 
         if ($user->savedJobListings()->whereKey($jobListing->getKey())->exists()) {
@@ -249,14 +252,16 @@ new #[Title('الوظائف')] class extends Component {
                             </span>
                         @endif
 
-                        <flux:button
-                            size="sm"
-                            :variant="in_array($job->id, $this->savedIds, true) ? 'primary' : 'filled'"
-                            icon="bookmark"
-                            wire:click="toggleSave({{ $job->id }})"
-                        >
-                            {{ in_array($job->id, $this->savedIds, true) ? 'محفوظة' : 'حفظ' }}
-                        </flux:button>
+                        @if (auth()->user()->isSeeker())
+                            <flux:button
+                                size="sm"
+                                :variant="in_array($job->id, $this->savedIds, true) ? 'primary' : 'filled'"
+                                icon="bookmark"
+                                wire:click="toggleSave({{ $job->id }})"
+                            >
+                                {{ in_array($job->id, $this->savedIds, true) ? 'محفوظة' : 'حفظ' }}
+                            </flux:button>
+                        @endif
                     </div>
                 </div>
             </article>

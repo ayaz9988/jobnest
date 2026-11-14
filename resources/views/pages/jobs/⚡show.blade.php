@@ -39,6 +39,8 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
     {
         $user = Auth::user();
 
+        abort_unless($user->isSeeker(), 403);
+
         if ($user->savedJobListings()->whereKey($this->jobListing->getKey())->exists()) {
             $user->savedJobListings()->detach($this->jobListing->getKey());
 
@@ -60,6 +62,8 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
     {
         $user = Auth::user();
 
+        abort_unless($user->isSeeker(), 403);
+
         if (! $this->jobListing->isOpen()) {
             $this->addError('application', 'هذه الوظيفة لم تعد تستقبل طلبات.');
 
@@ -80,31 +84,41 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
             'coverLetter' => 'رسالة التقديم',
         ]);
 
-        if ($this->alreadyApplied) {
+        $existing = $this->alreadyApplied;
+
+        if ($existing && ! $existing->isWithdrawn()) {
             $this->addError('application', 'لقد تقدمت لهذه الوظيفة بالفعل.');
 
             return;
         }
 
-        try {
-            Application::query()->create([
-                'user_id' => $user->id,
-                'job_listing_id' => $this->jobListing->getKey(),
-                'resume_id' => (int) $validated['resumeId'],
-                'cover_letter' => filled($validated['coverLetter'] ?? null)
-                    ? $validated['coverLetter']
-                    : null,
-                'status' => 'applied',
-                'applied_at' => now(),
-            ]);
-        } catch (UniqueConstraintViolationException) {
-            $this->addError('application', 'لقد تقدمت لهذه الوظيفة بالفعل.');
+        $attributes = [
+            'resume_id' => (int) $validated['resumeId'],
+            'cover_letter' => filled($validated['coverLetter'] ?? null)
+                ? $validated['coverLetter']
+                : null,
+            'status' => Application::STATUS_APPLIED,
+            'applied_at' => now(),
+        ];
 
-            return;
+        if ($existing) {
+            $existing->update($attributes);
+        } else {
+            try {
+                Application::query()->create([
+                    'user_id' => $user->id,
+                    'job_listing_id' => $this->jobListing->getKey(),
+                    ...$attributes,
+                ]);
+            } catch (UniqueConstraintViolationException) {
+                $this->addError('application', 'لقد تقدمت لهذه الوظيفة بالفعل.');
+
+                return;
+            }
         }
 
         $this->reset('coverLetter');
-        unset($this->alreadyApplied, $this->resumes);
+        unset($this->alreadyApplied, $this->canReapply, $this->resumes);
 
         Flux::toast(variant: 'success', text: 'تم إرسال طلبك بنجاح.');
     }
@@ -136,6 +150,12 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
             ->where('user_id', Auth::id())
             ->where('job_listing_id', $this->jobListing->getKey())
             ->first();
+    }
+
+    #[Computed]
+    public function canReapply(): bool
+    {
+        return $this->alreadyApplied?->isWithdrawn() ?? false;
     }
 
     /**
@@ -256,29 +276,44 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
                     @endif
                 </dl>
 
-                <div class="mt-5">
-                    <flux:button
-                        class="w-full"
-                        :variant="$this->isSaved ? 'primary' : 'filled'"
-                        icon="bookmark"
-                        wire:click="toggleSave"
-                    >
-                        {{ $this->isSaved ? 'إزالة من المحفوظات' : 'حفظ الوظيفة' }}
-                    </flux:button>
-                </div>
+                @if (auth()->user()->isSeeker())
+                    <div class="mt-5">
+                        <flux:button
+                            class="w-full"
+                            :variant="$this->isSaved ? 'primary' : 'filled'"
+                            icon="bookmark"
+                            wire:click="toggleSave"
+                        >
+                            {{ $this->isSaved ? 'إزالة من المحفوظات' : 'حفظ الوظيفة' }}
+                        </flux:button>
+                    </div>
+                @endif
             </section>
 
-            <section class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
+            @if (auth()->user()->isSeeker())
+                <section class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
                 <h2 class="text-base font-semibold text-neutral-900 dark:text-white">التقديم على الوظيفة</h2>
 
-                @if ($this->alreadyApplied)
+                @if ($this->alreadyApplied && ! $this->canReapply)
                     <div class="mt-4 space-y-2">
                         <p class="text-sm text-neutral-600 dark:text-neutral-300">
                             لقد تقدمت لهذه الوظيفة.
                         </p>
-                        <flux:badge color="green">
+                        <flux:badge :color="\App\Support\JobListingOptions::applicationStatusColor($this->alreadyApplied->status)">
                             {{ \App\Support\JobListingOptions::applicationStatus($this->alreadyApplied->status) }}
                         </flux:badge>
+
+                        <div class="pt-2">
+                            <flux:button
+                                :href="route('applications.show', $this->alreadyApplied)"
+                                size="sm"
+                                variant="filled"
+                                icon="document-text"
+                                wire:navigate
+                            >
+                                عرض الطلب
+                            </flux:button>
+                        </div>
                     </div>
                 @elseif ($this->resumes->isEmpty())
                     <div class="mt-4 space-y-3">
@@ -290,6 +325,12 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
                         </flux:button>
                     </div>
                 @else
+                    @if ($this->canReapply)
+                        <p class="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-400/10 dark:text-amber-200">
+                            لقد سحبت طلبك السابق من هذه الوظيفة. يمكنك التقديم مرة أخرى أدناه.
+                        </p>
+                    @endif
+
                     <form wire:submit="apply" class="mt-4 space-y-4">
                         <flux:select wire:model="resumeId" label="السيرة الذاتية">
                             @foreach ($this->resumes as $resume)
@@ -321,7 +362,8 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
                         </flux:button>
                     </form>
                 @endif
-            </section>
+                </section>
+            @endif
         </aside>
     </div>
 </div>
