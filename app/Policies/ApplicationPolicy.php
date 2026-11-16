@@ -19,7 +19,7 @@ class ApplicationPolicy
 
     public function create(Admin $admin): bool
     {
-        return $admin->is_active;
+        return false;
     }
 
     public function update(Admin $admin, Application $target): bool
