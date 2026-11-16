@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Applications\Tables;
 
+use App\Filament\Resources\Applications\Actions\ApplicationTransitions;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class ApplicationsTable
@@ -42,15 +44,29 @@ class ApplicationsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'applied' => 'Applied',
+                        'reviewed' => 'Reviewed',
+                        'interview' => 'Interview',
+                        'withdraw' => 'Withdraw',
+                        'hired' => 'Hired',
+                        'rejected' => 'Rejected',
+                    ]),
+                SelectFilter::make('job_listing_id')
+                    ->label('Job listing')
+                    ->relationship('jobListing', 'title')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
-                EditAction::make(),
+                ViewAction::make(),
+                ...ApplicationTransitions::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->authorizeIndividualRecords('delete'),
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }

@@ -32,7 +32,7 @@ class ApplicationForm
                     ->required(),
                 Select::make('resume_id')
                     ->label('Resume')
-                    ->relationship('resume','file_name',
+                    ->relationship('resume', 'file_name',
                         fn (Builder $query, Get $get) => $query
                             ->when(
                                 filled($get('user_id')),
