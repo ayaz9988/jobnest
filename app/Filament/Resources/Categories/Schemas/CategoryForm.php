@@ -25,21 +25,18 @@ class CategoryForm
                         fn (Builder $query, ?Category $record) => $query
                             ->when($record, fn (Builder $query) => $query
                                 ->whereNotIn('id', $record->descendantIds())),
-                                ignoreRecord: true,
+                        ignoreRecord: true,
                     )
                     ->searchable()
                     ->preload()
                     ->placeholder('None (top-level)')
                     ->rule(
-                        fn (?Category $record) => function (string $attribute, mixed $value, Closure $fail) use ($record): void
-                        {
-                            if (! $record || blank($value))
-                            {
+                        fn (?Category $record) => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                            if (! $record || blank($value)) {
                                 return;
                             }
 
-                            if((int) $value === $record->getKey() || in_array((int) $value, $record->descendantIds(), true))
-                            {
+                            if ((int) $value === $record->getKey() || in_array((int) $value, $record->descendantIds(), true)) {
                                 $fail('A Category cannot be its own parent or one of its descendants.');
                             }
                         }

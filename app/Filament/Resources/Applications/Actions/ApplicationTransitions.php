@@ -14,6 +14,9 @@ use Livewire\Component;
 
 class ApplicationTransitions
 {
+    /**
+     * @return array<int, Action>
+     */
     public static function make(): array
     {
         return [
