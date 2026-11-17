@@ -17,12 +17,12 @@ return new class extends Migration
             $table->foreignId('job_listing_id')->constrained('job_listings')->onDelete('cascade');
             $table->foreignId('resume_id')->nullable()->constrained('resumes')->onDelete('set null');
             $table->enum('status', [
-                'applied', 
-                'reviewed', 
-                'interview', 
-                'withdraw', 
-                'hired', 
-                'rejected'
+                'applied',
+                'reviewed',
+                'interview',
+                'withdraw',
+                'hired',
+                'rejected',
             ])->default('applied');
             $table->text('cover_letter')->nullable();
             $table->timestamp('applied_at')->useCurrent();

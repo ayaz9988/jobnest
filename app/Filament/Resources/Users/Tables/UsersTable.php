@@ -47,7 +47,7 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->authorizeIndividualRecords('delete'),
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }
