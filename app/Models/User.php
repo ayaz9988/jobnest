@@ -74,6 +74,22 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * @return HasMany<WorkExperience, $this>
+     */
+    public function workExperiences(): HasMany
+    {
+        return $this->hasMany(WorkExperience::class)->latest('started_at');
+    }
+
+    /**
+     * @return HasMany<Education, $this>
+     */
+    public function educations(): HasMany
+    {
+        return $this->hasMany(Education::class)->latest('started_at');
+    }
+
+    /**
      * @return HasMany<JobListing, $this>
      */
     public function jobListings(): HasMany

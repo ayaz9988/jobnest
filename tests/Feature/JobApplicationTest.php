@@ -8,15 +8,17 @@ use App\Models\Resume;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Tests\Concerns\CompletesSeekerProfiles;
 use Tests\TestCase;
 
 class JobApplicationTest extends TestCase
 {
-    use RefreshDatabase;
+    use CompletesSeekerProfiles, RefreshDatabase;
 
     public function test_a_seeker_can_apply_with_their_primary_resume(): void
     {
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         $primary = Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 
@@ -52,6 +54,7 @@ class JobApplicationTest extends TestCase
     public function test_cover_letter_is_optional(): void
     {
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 
@@ -102,6 +105,7 @@ class JobApplicationTest extends TestCase
     public function test_duplicate_applications_are_blocked(): void
     {
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 

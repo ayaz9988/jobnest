@@ -12,17 +12,19 @@ use App\Notifications\ApplicationSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
+use Tests\Concerns\CompletesSeekerProfiles;
 use Tests\TestCase;
 
 class ApplicationNotificationsTest extends TestCase
 {
-    use RefreshDatabase;
+    use CompletesSeekerProfiles, RefreshDatabase;
 
     public function test_applying_notifies_the_seeker_on_the_database_and_mail_channels(): void
     {
         Notification::fake();
 
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 
@@ -45,6 +47,7 @@ class ApplicationNotificationsTest extends TestCase
         Notification::fake();
 
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 
