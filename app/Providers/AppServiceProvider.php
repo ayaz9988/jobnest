@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Admin;
+use App\Models\Application;
+use App\Observers\ApplicationObserver;
 use App\Policies\AdminPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -27,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Application::observe(ApplicationObserver::class);
 
         Gate::policy(Admin::class, AdminPolicy::class);
     }

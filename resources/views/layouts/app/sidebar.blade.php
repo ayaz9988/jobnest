@@ -29,6 +29,16 @@
                             طلباتي
                         </flux:sidebar.item>
                     @endif
+                    <flux:sidebar.item
+                        icon="bell"
+                        :href="route('notifications.index')"
+                        :current="request()->routeIs('notifications.index')"
+                        :badge="auth()->user()->unreadNotifications()->count() ?: null"
+                        badge-color="red"
+                        wire:navigate
+                    >
+                        الإشعارات
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
