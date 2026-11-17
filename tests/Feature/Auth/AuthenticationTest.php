@@ -18,6 +18,15 @@ class AuthenticationTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_login_screen_is_arabic_and_rtl(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('dir="rtl"', false)
+            ->assertSee('تسجيل الدخول')
+            ->assertSee('كلمة المرور');
+    }
+
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
         $user = User::factory()->create();

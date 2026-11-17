@@ -22,12 +22,12 @@ return new class extends Migration
                 'part_time',
                 'contract',
                 'internship',
-                'temporary'
+                'temporary',
             ]);
             $table->enum('workplace_type', [
                 'on_site',
                 'remote',
-                'hybrid'
+                'hybrid',
             ]);
             $table->string('location')->nullable();
             $table->unsignedInteger('salary_min')->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration
                 'draft',
                 'open',
                 'closed',
-                'filled'
+                'filled',
             ])->default('open');
             $table->timestamp('expires_at')->nullable();
             $table->timestamp('published_at')->nullable();

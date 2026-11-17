@@ -41,5 +41,4 @@ class UserPolicy
     {
         return $admin->is_active && $admin->isSuperAdmin();
     }
-
 }
