@@ -20,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::livewire('jobs/{jobListing}', 'pages::jobs.show')->name('jobs.show');
 
+    Route::livewire('applications', 'pages::applications.index')->name('applications.index');
+
+    Route::livewire('applications/{application}', 'pages::applications.show')->name('applications.show');
+
     Route::get('resumes/{resume}/download', function (Resume $resume) {
         abort_unless($resume->user_id === Auth::id(), 403);
         abort_unless($resume->hasStoredFile(), 404);

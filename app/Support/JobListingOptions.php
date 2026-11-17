@@ -59,4 +59,16 @@ final class JobListingOptions
     {
         return self::applicationStatuses()[$status] ?? 'غير محدد';
     }
+
+    public static function applicationStatusColor(?string $status): string
+    {
+        return match ($status) {
+            'applied' => 'blue',
+            'reviewed' => 'amber',
+            'interview' => 'blue',
+            'hired' => 'green',
+            'rejected' => 'red',
+            default => 'zinc',
+        };
+    }
 }
