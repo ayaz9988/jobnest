@@ -18,8 +18,10 @@ class CategoriesTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
-                TextColumn::make('parent_id')
-                    ->numeric()
+                TextColumn::make('parent.name')
+                    ->label('Parent category')
+                    ->placeholder('—')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -39,7 +41,7 @@ class CategoriesTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->authorizeIndividualRecords('delete'),
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }

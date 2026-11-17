@@ -37,6 +37,7 @@ class AdminForm
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 TextInput::make('password')
                     ->password()
@@ -44,9 +45,11 @@ class AdminForm
                     ->dehydrated(fn (?string $state): bool => filled($state)),
                 Select::make('role')
                     ->options(['admin' => 'Admin', 'super_admin' => 'Super admin'])
+                    ->default('admin')
+                    ->required()
                     ->disabled(fn (?Admin $record): bool => self::isProtectedAdmin($record)),
                 Toggle::make('is_active')
-                    ->required()
+                    ->default(true)
                     ->disabled(fn (?Admin $record): bool => self::isProtectedAdmin($record)),
             ]);
     }
