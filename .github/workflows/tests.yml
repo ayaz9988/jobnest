@@ -33,6 +33,9 @@ jobs:
 
       - name: Setup Application
         run: composer setup
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
 
       - name: Run CI Checks
         run: composer ci:check
