@@ -34,8 +34,17 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertSessionHasNoErrors()
-            ->assertRedirect(route('dashboard', absolute: false));
+            ->assertRedirect(route('profile.show', absolute: false));
 
         $this->assertAuthenticated();
+    }
+
+    public function test_registration_screen_is_arabic_and_rtl(): void
+    {
+        $this->get(route('register'))
+            ->assertOk()
+            ->assertSee('dir="rtl"', false)
+            ->assertSee('إنشاء حساب')
+            ->assertSee('البريد الإلكتروني');
     }
 }

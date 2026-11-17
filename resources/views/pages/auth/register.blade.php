@@ -1,6 +1,6 @@
-<x-layouts::auth :title="__('Register')">
+<x-layouts::auth :title="'إنشاء حساب'">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Create an account')" :description="__('Enter your details below to create your account')" />
+        <x-auth-header title="أنشئ حسابك" description="أدخل بياناتك أدناه لإنشاء حساب جديد" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -10,19 +10,19 @@
             <!-- Name -->
             <flux:input
                 name="name"
-                :label="__('Name')"
+                :label="'الاسم'"
                 :value="old('name')"
                 type="text"
                 required
                 autofocus
                 autocomplete="name"
-                :placeholder="__('Full name')"
+                :placeholder="'الاسم الكامل'"
             />
 
             <!-- Email Address -->
             <flux:input
                 name="email"
-                :label="__('Email address')"
+                :label="'البريد الإلكتروني'"
                 :value="old('email')"
                 type="email"
                 required
@@ -33,11 +33,11 @@
             <!-- Password -->
             <flux:input
                 name="password"
-                :label="__('Password')"
+                :label="'كلمة المرور'"
                 type="password"
                 required
                 autocomplete="new-password"
-                :placeholder="__('Password')"
+                :placeholder="'كلمة المرور'"
                 passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
                 viewable
             />
@@ -45,25 +45,25 @@
             <!-- Confirm Password -->
             <flux:input
                 name="password_confirmation"
-                :label="__('Confirm password')"
+                :label="'تأكيد كلمة المرور'"
                 type="password"
                 required
                 autocomplete="new-password"
-                :placeholder="__('Confirm password')"
+                :placeholder="'تأكيد كلمة المرور'"
                 passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
                 viewable
             />
 
             <div class="flex items-center justify-end">
                 <flux:button type="submit" variant="primary" class="w-full" data-test="register-user-button">
-                    {{ __('Create account') }}
+                    {{ 'إنشاء الحساب' }}
                 </flux:button>
             </div>
         </form>
 
         <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Already have an account?') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+            <span>{{ 'لديك حساب بالفعل؟' }}</span>
+            <flux:link :href="route('login')" wire:navigate>{{ 'تسجيل الدخول' }}</flux:link>
         </div>
     </div>
 </x-layouts::auth>
