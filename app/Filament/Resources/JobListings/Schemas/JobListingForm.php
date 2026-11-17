@@ -4,8 +4,8 @@ namespace App\Filament\Resources\JobListings\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -34,12 +34,12 @@ class JobListingForm
                     ->columnSpanFull(),
                 Select::make('employment_type')
                     ->options([
-                    'full_time' => 'Full time',
-                    'part_time' => 'Part time',
-                    'contract' => 'Contract',
-                    'internship' => 'Internship',
-                    'temporary' => 'Temporary',
-                ])
+                        'full_time' => 'Full time',
+                        'part_time' => 'Part time',
+                        'contract' => 'Contract',
+                        'internship' => 'Internship',
+                        'temporary' => 'Temporary',
+                    ])
                     ->required(),
                 Select::make('workplace_type')
                     ->options(['on_site' => 'On site', 'remote' => 'Remote', 'hybrid' => 'Hybrid'])

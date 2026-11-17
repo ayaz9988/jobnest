@@ -69,7 +69,7 @@ class JobListingsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->authorizeIndividualRecords('delete'),
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }

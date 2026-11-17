@@ -38,6 +38,6 @@ class TransitionApplication
 
     public function canTransition(Application $application, string $to): bool
     {
-        return in_array($to, self::TRANSITIONS[$application->status] ?? [], true);
+        return in_array($to, self::TRANSITIONS[$application->status], true);
     }
 }

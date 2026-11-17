@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('file_url');
             $table->string('file_name');
             $table->string('mime_type')->nullable();
-            $table->integer('file_size',false, true)->nullable();
+            $table->integer('file_size', false, true)->nullable();
             $table->boolean('is_primary')->default(false);
             $table->timestamps();
         });

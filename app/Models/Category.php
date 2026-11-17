@@ -40,10 +40,12 @@ class Category extends Model
         return $this->hasMany(JobListing::class);
     }
 
+    /**
+     * @return array<int, int>
+     */
     public function descendantIds(): array
     {
-        if(! $this->exists)
-        {
+        if (! $this->exists) {
             return [];
         }
 
@@ -56,6 +58,7 @@ class Category extends Model
                 ->whereNotIn('id', $ids)
                 ->whereKeyNot($this->getKey())
                 ->pluck('id')
+                ->map(fn ($id): int => (int) $id)
                 ->all();
 
             $ids = [...$ids, ...$found];
