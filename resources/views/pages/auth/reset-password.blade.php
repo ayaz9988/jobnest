@@ -1,6 +1,6 @@
-<x-layouts::auth :title="__('Reset password')">
+<x-layouts::auth :title="'إعادة تعيين كلمة المرور'">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Reset password')" :description="__('Please enter your new password below')" />
+        <x-auth-header title="إعادة تعيين كلمة المرور" description="أدخل كلمة المرور الجديدة أدناه" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -14,7 +14,7 @@
             <flux:input
                 name="email"
                 value="{{ request('email') }}"
-                :label="__('Email')"
+                :label="'البريد الإلكتروني'"
                 type="email"
                 required
                 autocomplete="email"
@@ -23,11 +23,11 @@
             <!-- Password -->
             <flux:input
                 name="password"
-                :label="__('Password')"
+                :label="'كلمة المرور'"
                 type="password"
                 required
                 autocomplete="new-password"
-                :placeholder="__('Password')"
+                :placeholder="'كلمة المرور'"
                 passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
                 viewable
             />
@@ -35,18 +35,18 @@
             <!-- Confirm Password -->
             <flux:input
                 name="password_confirmation"
-                :label="__('Confirm password')"
+                :label="'تأكيد كلمة المرور'"
                 type="password"
                 required
                 autocomplete="new-password"
-                :placeholder="__('Confirm password')"
+                :placeholder="'تأكيد كلمة المرور'"
                 passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
                 viewable
             />
 
             <div class="flex items-center justify-end">
                 <flux:button type="submit" variant="primary" class="w-full" data-test="reset-password-button">
-                    {{ __('Reset password') }}
+                    {{ 'إعادة تعيين كلمة المرور' }}
                 </flux:button>
             </div>
         </form>
