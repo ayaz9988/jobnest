@@ -3,6 +3,7 @@
 use App\Models\Application;
 use App\Models\JobListing;
 use App\Models\Resume;
+use App\Support\SeekerProfileCompleteness;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -84,6 +85,17 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
             'coverLetter' => 'رسالة التقديم',
         ]);
 
+        $completeness = SeekerProfileCompleteness::for($user);
+
+        if (! $completeness->canApply()) {
+            $this->addError(
+                'application',
+                'أكمل ملفك الشخصي قبل التقديم: '.implode('، ', $completeness->missingForApplying()).'.',
+            );
+
+            return;
+        }
+
         $existing = $this->alreadyApplied;
 
         if ($existing && ! $existing->isWithdrawn()) {
@@ -156,6 +168,12 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
     public function canReapply(): bool
     {
         return $this->alreadyApplied?->isWithdrawn() ?? false;
+    }
+
+    #[Computed]
+    public function completeness(): SeekerProfileCompleteness
+    {
+        return SeekerProfileCompleteness::for(Auth::user());
     }
 
     /**
@@ -315,13 +333,20 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
                             </flux:button>
                         </div>
                     </div>
-                @elseif ($this->resumes->isEmpty())
+                @elseif (! $this->completeness->canApply())
                     <div class="mt-4 space-y-3">
                         <p class="text-sm text-neutral-600 dark:text-neutral-300">
-                            تحتاج إلى رفع سيرة ذاتية قبل التقديم على الوظائف.
+                            أكمل ملفك الشخصي قبل التقديم على هذه الوظيفة:
                         </p>
-                        <flux:button :href="route('profile.show')" size="sm" variant="primary" wire:navigate>
-                            رفع سيرة ذاتية
+
+                        <ul class="list-inside list-disc space-y-1 text-sm text-amber-800 dark:text-amber-200">
+                            @foreach ($this->completeness->missingForApplying() as $requirement)
+                                <li>{{ $requirement }}</li>
+                            @endforeach
+                        </ul>
+
+                        <flux:button :href="route('profile.show')" size="sm" variant="primary" icon="user" wire:navigate>
+                            إكمال الملف الشخصي
                         </flux:button>
                     </div>
                 @else

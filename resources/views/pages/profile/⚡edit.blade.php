@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\Education;
 use App\Models\Skill;
+use App\Models\WorkExperience;
+use App\Support\SeekerProfileCompleteness;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +41,38 @@ new #[Title('ملفي الشخصي')] class extends Component {
     /** @var TemporaryUploadedFile|null */
     public $resumeFile = null;
 
+    public ?int $editingExperienceId = null;
+
+    public string $experienceTitle = '';
+
+    public string $experienceCompany = '';
+
+    public string $experienceLocation = '';
+
+    public string $experienceStartedAt = '';
+
+    public string $experienceEndedAt = '';
+
+    public bool $experienceIsCurrent = false;
+
+    public string $experienceDescription = '';
+
+    public ?int $editingEducationId = null;
+
+    public string $educationDegree = '';
+
+    public string $educationInstitution = '';
+
+    public string $educationField = '';
+
+    public string $educationStartedAt = '';
+
+    public string $educationEndedAt = '';
+
+    public bool $educationIsCurrent = false;
+
+    public string $educationDescription = '';
+
     public function mount(): void
     {
         $user = Auth::user();
@@ -67,6 +102,8 @@ new #[Title('ملفي الشخصي')] class extends Component {
         ]);
 
         Auth::user()->update($validated);
+
+        unset($this->completeness);
 
         Flux::toast(variant: 'success', text: 'تم حفظ بياناتك.');
     }
@@ -103,7 +140,7 @@ new #[Title('ملفي الشخصي')] class extends Component {
         $this->years[$skillId] = isset($validated['newYears']) ? (string) (int) $validated['newYears'] : null;
 
         $this->reset('newSkillId', 'newProficiency', 'newYears');
-        unset($this->userSkills, $this->availableSkills);
+        unset($this->userSkills, $this->availableSkills, $this->completeness);
 
         Flux::toast(variant: 'success', text: 'تمت إضافة المهارة.');
     }
@@ -148,7 +185,7 @@ new #[Title('ملفي الشخصي')] class extends Component {
         Auth::user()->skills()->detach($skillId);
 
         unset($this->proficiencies[$skillId], $this->years[$skillId]);
-        unset($this->userSkills, $this->availableSkills);
+        unset($this->userSkills, $this->availableSkills, $this->completeness);
 
         Flux::toast(variant: 'success', text: 'تمت إزالة المهارة.');
     }
@@ -185,7 +222,7 @@ new #[Title('ملفي الشخصي')] class extends Component {
         ]);
 
         $this->reset('resumeFile');
-        unset($this->userResumes);
+        unset($this->userResumes, $this->completeness);
 
         Flux::toast(variant: 'success', text: 'تم رفع السيرة الذاتية.');
     }
@@ -200,7 +237,7 @@ new #[Title('ملفي الشخصي')] class extends Component {
             $resume->update(['is_primary' => true]);
         });
 
-        unset($this->userResumes);
+        unset($this->userResumes, $this->completeness);
 
         Flux::toast(variant: 'success', text: 'تم تعيين السيرة الرئيسية.');
     }
@@ -217,9 +254,163 @@ new #[Title('ملفي الشخصي')] class extends Component {
             $user->resumes()->latest()->first()?->update(['is_primary' => true]);
         }
 
-        unset($this->userResumes);
+        unset($this->userResumes, $this->completeness);
 
         Flux::toast(variant: 'success', text: 'تم حذف السيرة الذاتية.');
+    }
+
+    public function saveExperience(): void
+    {
+        $validated = $this->validate([
+            'experienceTitle' => ['required', 'string', 'max:150'],
+            'experienceCompany' => ['required', 'string', 'max:150'],
+            'experienceLocation' => ['nullable', 'string', 'max:100'],
+            'experienceStartedAt' => ['required', 'date', 'before_or_equal:today'],
+            'experienceEndedAt' => ['nullable', 'date', 'after_or_equal:experienceStartedAt'],
+            'experienceIsCurrent' => ['boolean'],
+            'experienceDescription' => ['nullable', 'string', 'max:2000'],
+        ], $this->messages(), [
+            'experienceTitle' => 'المسمى الوظيفي',
+            'experienceCompany' => 'جهة العمل',
+            'experienceLocation' => 'مكان العمل',
+            'experienceStartedAt' => 'تاريخ البداية',
+            'experienceEndedAt' => 'تاريخ النهاية',
+            'experienceDescription' => 'الوصف',
+        ]);
+
+        $attributes = [
+            'job_title' => $validated['experienceTitle'],
+            'company' => $validated['experienceCompany'],
+            'location' => filled($validated['experienceLocation'] ?? null) ? $validated['experienceLocation'] : null,
+            'started_at' => $validated['experienceStartedAt'],
+            'ended_at' => $validated['experienceIsCurrent'] ? null : ($validated['experienceEndedAt'] ?? null),
+            'is_current' => $validated['experienceIsCurrent'],
+            'description' => filled($validated['experienceDescription'] ?? null) ? $validated['experienceDescription'] : null,
+        ];
+
+        $user = Auth::user();
+
+        if ($this->editingExperienceId !== null) {
+            $user->workExperiences()->findOrFail($this->editingExperienceId)->update($attributes);
+
+            Flux::toast(variant: 'success', text: 'تم تحديث الخبرة العملية.');
+        } else {
+            $user->workExperiences()->create($attributes);
+
+            Flux::toast(variant: 'success', text: 'تمت إضافة الخبرة العملية.');
+        }
+
+        $this->resetExperienceForm();
+        unset($this->workExperiences, $this->completeness);
+    }
+
+    public function editExperience(int $experienceId): void
+    {
+        $experience = Auth::user()->workExperiences()->findOrFail($experienceId);
+
+        $this->editingExperienceId = (int) $experience->id;
+        $this->experienceTitle = $experience->job_title;
+        $this->experienceCompany = $experience->company;
+        $this->experienceLocation = $experience->location ?? '';
+        $this->experienceStartedAt = $experience->started_at?->format('Y-m-d') ?? '';
+        $this->experienceEndedAt = $experience->ended_at?->format('Y-m-d') ?? '';
+        $this->experienceIsCurrent = $experience->is_current;
+        $this->experienceDescription = $experience->description ?? '';
+    }
+
+    public function cancelExperienceEdit(): void
+    {
+        $this->resetExperienceForm();
+    }
+
+    public function deleteExperience(int $experienceId): void
+    {
+        Auth::user()->workExperiences()->findOrFail($experienceId)->delete();
+
+        if ($this->editingExperienceId === $experienceId) {
+            $this->resetExperienceForm();
+        }
+
+        unset($this->workExperiences, $this->completeness);
+
+        Flux::toast(variant: 'success', text: 'تم حذف الخبرة العملية.');
+    }
+
+    public function saveEducation(): void
+    {
+        $validated = $this->validate([
+            'educationDegree' => ['required', 'string', 'max:150'],
+            'educationInstitution' => ['required', 'string', 'max:150'],
+            'educationField' => ['nullable', 'string', 'max:150'],
+            'educationStartedAt' => ['required', 'date', 'before_or_equal:today'],
+            'educationEndedAt' => ['nullable', 'date', 'after_or_equal:educationStartedAt'],
+            'educationIsCurrent' => ['boolean'],
+            'educationDescription' => ['nullable', 'string', 'max:2000'],
+        ], $this->messages(), [
+            'educationDegree' => 'الدرجة العلمية',
+            'educationInstitution' => 'الجهة التعليمية',
+            'educationField' => 'التخصص',
+            'educationStartedAt' => 'تاريخ البداية',
+            'educationEndedAt' => 'تاريخ النهاية',
+            'educationDescription' => 'الوصف',
+        ]);
+
+        $attributes = [
+            'degree' => $validated['educationDegree'],
+            'institution' => $validated['educationInstitution'],
+            'field_of_study' => filled($validated['educationField'] ?? null) ? $validated['educationField'] : null,
+            'started_at' => $validated['educationStartedAt'],
+            'ended_at' => $validated['educationIsCurrent'] ? null : ($validated['educationEndedAt'] ?? null),
+            'is_current' => $validated['educationIsCurrent'],
+            'description' => filled($validated['educationDescription'] ?? null) ? $validated['educationDescription'] : null,
+        ];
+
+        $user = Auth::user();
+
+        if ($this->editingEducationId !== null) {
+            $user->educations()->findOrFail($this->editingEducationId)->update($attributes);
+
+            Flux::toast(variant: 'success', text: 'تم تحديث المؤهل التعليمي.');
+        } else {
+            $user->educations()->create($attributes);
+
+            Flux::toast(variant: 'success', text: 'تمت إضافة المؤهل التعليمي.');
+        }
+
+        $this->resetEducationForm();
+        unset($this->educations, $this->completeness);
+    }
+
+    public function editEducation(int $educationId): void
+    {
+        $education = Auth::user()->educations()->findOrFail($educationId);
+
+        $this->editingEducationId = (int) $education->id;
+        $this->educationDegree = $education->degree;
+        $this->educationInstitution = $education->institution;
+        $this->educationField = $education->field_of_study ?? '';
+        $this->educationStartedAt = $education->started_at?->format('Y-m-d') ?? '';
+        $this->educationEndedAt = $education->ended_at?->format('Y-m-d') ?? '';
+        $this->educationIsCurrent = $education->is_current;
+        $this->educationDescription = $education->description ?? '';
+    }
+
+    public function cancelEducationEdit(): void
+    {
+        $this->resetEducationForm();
+    }
+
+    public function deleteEducation(int $educationId): void
+    {
+        Auth::user()->educations()->findOrFail($educationId)->delete();
+
+        if ($this->editingEducationId === $educationId) {
+            $this->resetEducationForm();
+        }
+
+        unset($this->educations, $this->completeness);
+
+        Flux::toast(variant: 'success', text: 'تم حذف المؤهل التعليمي.');
     }
 
     /**
@@ -250,6 +441,58 @@ new #[Title('ملفي الشخصي')] class extends Component {
     public function userResumes(): Collection
     {
         return Auth::user()->resumes()->latest()->get();
+    }
+
+    /**
+     * @return Collection<int, WorkExperience>
+     */
+    #[Computed]
+    public function workExperiences(): Collection
+    {
+        return Auth::user()->workExperiences()->get();
+    }
+
+    /**
+     * @return Collection<int, Education>
+     */
+    #[Computed]
+    public function educations(): Collection
+    {
+        return Auth::user()->educations()->get();
+    }
+
+    #[Computed]
+    public function completeness(): SeekerProfileCompleteness
+    {
+        return SeekerProfileCompleteness::for(Auth::user());
+    }
+
+    private function resetExperienceForm(): void
+    {
+        $this->reset([
+            'editingExperienceId',
+            'experienceTitle',
+            'experienceCompany',
+            'experienceLocation',
+            'experienceStartedAt',
+            'experienceEndedAt',
+            'experienceIsCurrent',
+            'experienceDescription',
+        ]);
+    }
+
+    private function resetEducationForm(): void
+    {
+        $this->reset([
+            'editingEducationId',
+            'educationDegree',
+            'educationInstitution',
+            'educationField',
+            'educationStartedAt',
+            'educationEndedAt',
+            'educationIsCurrent',
+            'educationDescription',
+        ]);
     }
 
     private function normalizeNewSkill(): void
@@ -286,6 +529,28 @@ new #[Title('ملفي الشخصي')] class extends Component {
             'resumeFile.required' => 'اختر ملف السيرة الذاتية.',
             'resumeFile.mimes' => 'يجب أن يكون الملف بصيغة PDF أو DOC أو DOCX.',
             'resumeFile.max' => 'حجم الملف يجب ألا يتجاوز 5 ميغابايت.',
+            'experienceTitle.required' => 'المسمى الوظيفي مطلوب.',
+            'experienceTitle.max' => 'المسمى الوظيفي يجب ألا يتجاوز 150 حرفًا.',
+            'experienceCompany.required' => 'جهة العمل مطلوبة.',
+            'experienceCompany.max' => 'جهة العمل يجب ألا تتجاوز 150 حرفًا.',
+            'experienceLocation.max' => 'مكان العمل يجب ألا يتجاوز 100 حرف.',
+            'experienceStartedAt.required' => 'تاريخ البداية مطلوب.',
+            'experienceStartedAt.date' => 'تاريخ البداية غير صالح.',
+            'experienceStartedAt.before_or_equal' => 'تاريخ البداية يجب ألا يكون في المستقبل.',
+            'experienceEndedAt.date' => 'تاريخ النهاية غير صالح.',
+            'experienceEndedAt.after_or_equal' => 'تاريخ النهاية يجب ألا يسبق تاريخ البداية.',
+            'experienceDescription.max' => 'الوصف يجب ألا يتجاوز 2000 حرف.',
+            'educationDegree.required' => 'الدرجة العلمية مطلوبة.',
+            'educationDegree.max' => 'الدرجة العلمية يجب ألا تتجاوز 150 حرفًا.',
+            'educationInstitution.required' => 'الجهة التعليمية مطلوبة.',
+            'educationInstitution.max' => 'الجهة التعليمية يجب ألا تتجاوز 150 حرفًا.',
+            'educationField.max' => 'التخصص يجب ألا يتجاوز 150 حرفًا.',
+            'educationStartedAt.required' => 'تاريخ البداية مطلوب.',
+            'educationStartedAt.date' => 'تاريخ البداية غير صالح.',
+            'educationStartedAt.before_or_equal' => 'تاريخ البداية يجب ألا يكون في المستقبل.',
+            'educationEndedAt.date' => 'تاريخ النهاية غير صالح.',
+            'educationEndedAt.after_or_equal' => 'تاريخ النهاية يجب ألا يسبق تاريخ البداية.',
+            'educationDescription.max' => 'الوصف يجب ألا يتجاوز 2000 حرف.',
         ];
     }
 }; ?>
@@ -303,6 +568,49 @@ new #[Title('ملفي الشخصي')] class extends Component {
                 {{ auth()->user()->role === 'employer' ? 'صاحب عمل' : 'باحث عن عمل' }}
             </flux:badge>
         </div>
+
+        @if (auth()->user()->isSeeker())
+            <section class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h2 class="text-base font-semibold text-neutral-900 dark:text-white">اكتمال الملف الشخصي</h2>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">
+                        {{ $this->completeness->percentage() }}%
+                    </span>
+                </div>
+
+                <flux:progress class="mt-3" color="blue" :value="$this->completeness->percentage()" />
+
+                <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    @foreach ($this->completeness->items() as $item)
+                        <li class="flex items-center gap-2 text-sm">
+                            <flux:icon
+                                :name="$item['complete'] ? 'check-circle' : 'minus-circle'"
+                                variant="micro"
+                                class="{{ $item['complete'] ? 'text-green-600 dark:text-green-400' : 'text-neutral-400' }}"
+                            />
+
+                            <span class="{{ $item['complete'] ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-500 dark:text-neutral-400' }}">
+                                {{ $item['label'] }}
+                            </span>
+
+                            @unless ($item['required'])
+                                <flux:badge size="sm">اختياري</flux:badge>
+                            @endunless
+                        </li>
+                    @endforeach
+                </ul>
+
+                @if (! $this->completeness->canApply())
+                    <p class="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-400/10 dark:text-amber-200">
+                        لتتمكن من إرسال طلباتك، أكمل: {{ implode('، ', $this->completeness->missingForApplying()) }}.
+                    </p>
+                @else
+                    <p class="mt-4 text-sm text-green-700 dark:text-green-400">
+                        ملفك مكتمل بما يكفي للتقديم على الوظائف.
+                    </p>
+                @endif
+            </section>
+        @endif
 
         <form wire:submit="updateProfile" class="space-y-5 rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
             <h2 class="text-base font-semibold text-neutral-900 dark:text-white">المعلومات الأساسية</h2>
@@ -414,6 +722,201 @@ new #[Title('ملفي الشخصي')] class extends Component {
                 @empty
                     <li class="py-4 text-sm text-neutral-500 dark:text-neutral-400">
                         لم تضف أي مهارات بعد.
+                    </li>
+                @endforelse
+            </ul>
+        </section>
+
+        <section class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-base font-semibold text-neutral-900 dark:text-white">الخبرة العملية</h2>
+                <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                    {{ $this->workExperiences->count() }} خبرة
+                </span>
+            </div>
+
+            <form wire:submit="saveExperience" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <flux:input wire:model="experienceTitle" label="المسمى الوظيفي" required />
+                <flux:input wire:model="experienceCompany" label="جهة العمل" required />
+                <flux:input wire:model="experienceLocation" label="مكان العمل" placeholder="مثال: الرياض، السعودية" />
+                <flux:input wire:model="experienceStartedAt" label="تاريخ البداية" type="date" required />
+                <flux:input
+                    wire:model="experienceEndedAt"
+                    label="تاريخ النهاية"
+                    type="date"
+                    :disabled="$experienceIsCurrent"
+                />
+
+                <div class="flex items-end sm:col-span-2">
+                    <flux:checkbox wire:model.live="experienceIsCurrent" label="ما زلت أعمل هنا" />
+                </div>
+
+                <div class="sm:col-span-2">
+                    <flux:textarea
+                        wire:model="experienceDescription"
+                        label="وصف المهام (اختياري)"
+                        rows="3"
+                        placeholder="اذكر أبرز المهام والإنجازات..."
+                    />
+                </div>
+
+                <div class="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                    @if ($editingExperienceId)
+                        <flux:button type="button" wire:click="cancelExperienceEdit">إلغاء</flux:button>
+                    @endif
+
+                    <flux:button type="submit" variant="primary">
+                        {{ $editingExperienceId ? 'حفظ التعديل' : 'إضافة الخبرة' }}
+                    </flux:button>
+                </div>
+            </form>
+
+            <ul class="mt-5 divide-y divide-neutral-200 dark:divide-neutral-700">
+                @forelse ($this->workExperiences as $experience)
+                    <li class="py-4" wire:key="experience-{{ $experience->id }}">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-medium text-neutral-900 dark:text-white">{{ $experience->job_title }}</p>
+
+                                    @if ($experience->is_current)
+                                        <flux:badge size="sm" color="green">حالية</flux:badge>
+                                    @endif
+                                </div>
+
+                                <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                                    {{ $experience->company }}
+                                    @if ($experience->location)
+                                        · {{ $experience->location }}
+                                    @endif
+                                </p>
+
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ $experience->period() }}</p>
+
+                                @if ($experience->description)
+                                    <p class="mt-2 whitespace-pre-line text-sm text-neutral-600 dark:text-neutral-300">
+                                        {{ $experience->description }}
+                                    </p>
+                                @endif
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <flux:button size="sm" icon="pencil" wire:click="editExperience({{ $experience->id }})">
+                                    تعديل
+                                </flux:button>
+
+                                <flux:button
+                                    size="sm"
+                                    variant="danger"
+                                    icon="trash"
+                                    wire:click="deleteExperience({{ $experience->id }})"
+                                    wire:confirm="هل تريد حذف هذه الخبرة؟"
+                                >
+                                    حذف
+                                </flux:button>
+                            </div>
+                        </div>
+                    </li>
+                @empty
+                    <li class="py-4 text-sm text-neutral-500 dark:text-neutral-400">
+                        لم تضف أي خبرة عملية بعد.
+                    </li>
+                @endforelse
+            </ul>
+        </section>
+
+        <section class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-base font-semibold text-neutral-900 dark:text-white">المؤهلات التعليمية</h2>
+                <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                    {{ $this->educations->count() }} مؤهل
+                </span>
+            </div>
+
+            <form wire:submit="saveEducation" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <flux:input wire:model="educationDegree" label="الدرجة العلمية" placeholder="مثال: بكالوريوس" required />
+                <flux:input wire:model="educationInstitution" label="الجهة التعليمية" required />
+                <flux:input wire:model="educationField" label="التخصص" />
+                <flux:input wire:model="educationStartedAt" label="تاريخ البداية" type="date" required />
+                <flux:input
+                    wire:model="educationEndedAt"
+                    label="تاريخ النهاية"
+                    type="date"
+                    :disabled="$educationIsCurrent"
+                />
+
+                <div class="flex items-end sm:col-span-2">
+                    <flux:checkbox wire:model.live="educationIsCurrent" label="ما زلت أدرس هنا" />
+                </div>
+
+                <div class="sm:col-span-2">
+                    <flux:textarea
+                        wire:model="educationDescription"
+                        label="ملاحظات (اختياري)"
+                        rows="2"
+                        placeholder="مثال: مشروع التخرج أو المعدل التراكمي..."
+                    />
+                </div>
+
+                <div class="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                    @if ($editingEducationId)
+                        <flux:button type="button" wire:click="cancelEducationEdit">إلغاء</flux:button>
+                    @endif
+
+                    <flux:button type="submit" variant="primary">
+                        {{ $editingEducationId ? 'حفظ التعديل' : 'إضافة المؤهل' }}
+                    </flux:button>
+                </div>
+            </form>
+
+            <ul class="mt-5 divide-y divide-neutral-200 dark:divide-neutral-700">
+                @forelse ($this->educations as $education)
+                    <li class="py-4" wire:key="education-{{ $education->id }}">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-medium text-neutral-900 dark:text-white">
+                                        {{ $education->degree }}
+                                        @if ($education->field_of_study)
+                                            · {{ $education->field_of_study }}
+                                        @endif
+                                    </p>
+
+                                    @if ($education->is_current)
+                                        <flux:badge size="sm" color="green">جاري</flux:badge>
+                                    @endif
+                                </div>
+
+                                <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{{ $education->institution }}</p>
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ $education->period() }}</p>
+
+                                @if ($education->description)
+                                    <p class="mt-2 whitespace-pre-line text-sm text-neutral-600 dark:text-neutral-300">
+                                        {{ $education->description }}
+                                    </p>
+                                @endif
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <flux:button size="sm" icon="pencil" wire:click="editEducation({{ $education->id }})">
+                                    تعديل
+                                </flux:button>
+
+                                <flux:button
+                                    size="sm"
+                                    variant="danger"
+                                    icon="trash"
+                                    wire:click="deleteEducation({{ $education->id }})"
+                                    wire:confirm="هل تريد حذف هذا المؤهل؟"
+                                >
+                                    حذف
+                                </flux:button>
+                            </div>
+                        </div>
+                    </li>
+                @empty
+                    <li class="py-4 text-sm text-neutral-500 dark:text-neutral-400">
+                        لم تضف أي مؤهل تعليمي بعد.
                     </li>
                 @endforelse
             </ul>

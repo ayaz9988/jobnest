@@ -8,11 +8,12 @@ use App\Models\Resume;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Tests\Concerns\CompletesSeekerProfiles;
 use Tests\TestCase;
 
 class JobApplicationTrackingTest extends TestCase
 {
-    use RefreshDatabase;
+    use CompletesSeekerProfiles, RefreshDatabase;
 
     public function test_guests_are_redirected_to_the_login_page(): void
     {
@@ -255,6 +256,7 @@ class JobApplicationTrackingTest extends TestCase
     public function test_a_withdrawn_application_can_be_reapplied_to_without_creating_a_new_row(): void
     {
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         $resume = Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 
@@ -284,6 +286,7 @@ class JobApplicationTrackingTest extends TestCase
     public function test_the_job_page_offers_the_apply_form_again_after_withdrawal(): void
     {
         $user = User::factory()->create();
+        $this->completeSeekerProfile($user);
         Resume::factory()->primary()->create(['user_id' => $user->id]);
         $job = JobListing::factory()->create();
 
