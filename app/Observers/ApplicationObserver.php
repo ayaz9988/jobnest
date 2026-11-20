@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Application;
+use App\Notifications\ApplicationHired;
 use App\Notifications\ApplicationStatusChanged;
 use App\Notifications\ApplicationSubmitted;
 
@@ -41,7 +42,20 @@ class ApplicationObserver
             return;
         }
 
+        if ($application->status === Application::STATUS_HIRED) {
+            $this->notifyHired($application);
+
+            return;
+        }
+
         $this->notifyStatusChanged($application);
+    }
+
+    private function notifyHired(Application $application): void
+    {
+        $application->loadMissing('jobListing');
+
+        $application->user?->notify(new ApplicationHired($application));
     }
 
     private function notifySubmitted(Application $application): void
