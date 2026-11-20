@@ -41,6 +41,32 @@ new #[Title('تفاصيل الطلب')] class extends Component {
         </flux:button>
     </div>
 
+    @if ($application->status === \App\Models\Application::STATUS_HIRED)
+        @php($hiredAt = $application->statusHistories->firstWhere('to_status', \App\Models\Application::STATUS_HIRED)?->created_at)
+
+        <section class="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/40">
+            <div class="flex items-start gap-4">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                    <flux:icon.check-badge variant="solid" class="size-6 text-green-600 dark:text-green-400" />
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-semibold text-green-900 dark:text-green-100">
+                        تهانينا! تم توظيفك
+                    </h2>
+
+                    <p class="mt-1 text-sm text-green-800 dark:text-green-200">
+                        تم توظيفك على وظيفة "{{ $application->jobListing?->title ?? 'وظيفة محذوفة' }}"@if ($hiredAt) في {{ $hiredAt->format('Y-m-d') }}@endif.
+                    </p>
+
+                    <p class="mt-2 text-sm text-green-700 dark:text-green-300">
+                        سيتواصل معك صاحب العمل لاستكمال إجراءات التوظيف. يمكنك متابعة مراحل طلبك من السجل أدناه.
+                    </p>
+                </div>
+            </div>
+        </section>
+    @endif
+
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
             <section class="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-zinc-900">
