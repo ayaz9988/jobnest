@@ -10,6 +10,11 @@ class ApplicationObserver
 {
     public function created(Application $application): void
     {
+        $application->statusHistories()->create([
+            'from_status' => null,
+            'to_status' => $application->status,
+        ]);
+
         if ($application->status === Application::STATUS_APPLIED) {
             $this->notifySubmitted($application);
         }
@@ -20,6 +25,11 @@ class ApplicationObserver
         if (! $application->wasChanged('status')) {
             return;
         }
+
+        $application->statusHistories()->create([
+            'from_status' => $application->getOriginal('status'),
+            'to_status' => $application->status,
+        ]);
 
         if ($application->status === Application::STATUS_APPLIED) {
             $this->notifySubmitted($application);

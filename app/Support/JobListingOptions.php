@@ -71,4 +71,16 @@ final class JobListingOptions
             default => 'zinc',
         };
     }
+
+    public static function applicationStatusDot(?string $status): string
+    {
+        return match ($status) {
+            'applied' => 'bg-blue-500',
+            'reviewed' => 'bg-amber-500',
+            'interview' => 'bg-sky-500',
+            'hired' => 'bg-green-500',
+            'rejected' => 'bg-red-500',
+            default => 'bg-zinc-400',
+        };
+    }
 }

@@ -17,7 +17,7 @@ new #[Title('تفاصيل الطلب')] class extends Component {
         abort_unless(Auth::user()->isSeeker(), 403);
         abort_unless($application->user_id === Auth::id(), 403);
 
-        $this->application = $application->load(['jobListing.category', 'jobListing.postedBy', 'resume']);
+        $this->application = $application->load(['jobListing.category', 'jobListing.postedBy', 'resume', 'statusHistories']);
     }
 
     public function withdraw(WithdrawApplication $withdrawApplication): void
@@ -108,6 +108,32 @@ new #[Title('تفاصيل الطلب')] class extends Component {
                         لم تكتب رسالة تقديم مع هذا الطلب.
                     </p>
                 @endif
+            </section>
+
+            <section class="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-zinc-900">
+                <h2 class="text-base font-semibold text-neutral-900 dark:text-white">مراحل الطلب</h2>
+
+                <ol class="mt-4 space-y-5">
+                    @forelse ($application->statusHistories as $entry)
+                        <li class="flex items-start gap-3">
+                            <span class="mt-1.5 size-2.5 shrink-0 rounded-full {{ \App\Support\JobListingOptions::applicationStatusDot($entry->to_status) }}"></span>
+
+                            <div>
+                                <p class="text-sm font-medium text-neutral-900 dark:text-white">
+                                    {{ \App\Support\JobListingOptions::applicationStatus($entry->to_status) }}
+                                </p>
+
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                    {{ $entry->created_at?->format('Y-m-d H:i') }}
+                                </p>
+                            </div>
+                        </li>
+                    @empty
+                        <li class="text-sm text-neutral-500 dark:text-neutral-400">
+                            لا يوجد سجل لهذا الطلب بعد.
+                        </li>
+                    @endforelse
+                </ol>
             </section>
         </div>
 
