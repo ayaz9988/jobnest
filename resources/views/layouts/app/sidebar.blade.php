@@ -7,8 +7,8 @@
         <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
             <flux:sidebar.header class="pb-2">
                 <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-3" wire:navigate>
-                    <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-sm shadow-emerald-900/20">
-                        <x-app-logo-icon class="size-5" />
+                    <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-black/5 dark:ring-white/10">
+                        <img src="{{ asset('images/jobnest-mark.png') }}" alt="JobNest" class="size-9 object-contain" />
                     </span>
 
                     <span class="min-w-0">
@@ -69,8 +69,8 @@
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2" wire:navigate>
-                <span class="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 text-white">
-                    <x-app-logo-icon class="size-4" />
+                <span class="flex size-8 items-center justify-center overflow-hidden rounded-lg bg-white ring-1 ring-black/5 dark:ring-white/10">
+                    <img src="{{ asset('images/jobnest-mark.png') }}" alt="JobNest" class="size-7 object-contain" />
                 </span>
                 <span class="text-sm font-bold text-neutral-900 dark:text-white">
                     {{ config('app.name', 'JobNest') }}

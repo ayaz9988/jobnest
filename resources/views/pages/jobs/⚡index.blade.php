@@ -124,13 +124,13 @@ new #[Title('الوظائف')] class extends Component {
 }; ?>
 
 <div class="flex w-full flex-1 flex-col gap-6">
-    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-bl from-emerald-600 via-emerald-700 to-teal-800 px-6 py-8 text-white shadow-lg shadow-emerald-900/10 sm:px-8">
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-bl from-violet-600 via-violet-700 to-indigo-950 px-6 py-8 text-white shadow-lg shadow-violet-900/10 sm:px-8">
         <div class="pointer-events-none absolute -top-16 -start-10 size-48 rounded-full bg-white/10 blur-2xl"></div>
-        <div class="pointer-events-none absolute -bottom-24 -end-10 size-56 rounded-full bg-teal-300/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-24 -end-10 size-56 rounded-full bg-violet-300/20 blur-3xl"></div>
 
         <div class="relative flex flex-wrap items-end justify-between gap-4">
             <div class="max-w-xl">
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-50 ring-1 ring-white/20">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-violet-50 ring-1 ring-white/20">
                     <flux:icon.sparkles class="size-3.5" />
                     وظائف جديدة كل يوم
                 </span>
@@ -139,7 +139,7 @@ new #[Title('الوظائف')] class extends Component {
                     اعثر على وظيفتك القادمة
                 </h1>
 
-                <p class="mt-2 text-sm leading-6 text-emerald-50/90">
+                <p class="mt-2 text-sm leading-6 text-violet-50/90">
                     تصفّح وظائف الشركات العربية، احفظ ما يناسبك، وقدّم بسيرتك الذاتية في دقيقة.
                 </p>
             </div>
@@ -214,11 +214,11 @@ new #[Title('الوظائف')] class extends Component {
     <div class="grid auto-rows-fr gap-4 lg:grid-cols-2">
         @forelse ($this->jobs as $job)
             <article
-                class="flex h-full flex-col rounded-2xl border border-neutral-200 bg-white p-5 transition hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-700/60"
+                class="flex h-full flex-col rounded-2xl border border-neutral-200 bg-white p-5 transition hover:border-violet-300 hover:shadow-lg hover:shadow-violet-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-violet-700/60"
                 wire:key="job-{{ $job->id }}"
             >
                 <div class="flex items-start gap-3">
-                    <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                    <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
                         @if ($job->postedBy)
                             <span class="text-sm font-semibold">{{ $job->postedBy->initials() }}</span>
                         @else
@@ -236,7 +236,7 @@ new #[Title('الوظائف')] class extends Component {
                                 {{ $job->title }}
                             </flux:link>
 
-                            <flux:badge size="sm" color="emerald">
+                            <flux:badge size="sm" color="violet">
                                 {{ \App\Support\JobListingOptions::workplaceType($job->workplace_type) }}
                             </flux:badge>
 
@@ -317,7 +317,7 @@ new #[Title('الوظائف')] class extends Component {
                     <a
                         href="{{ route('jobs.show', $job) }}"
                         wire:navigate
-                        class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 transition hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+                        class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 transition hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
                     >
                         عرض التفاصيل
                         <flux:icon.arrow-left class="size-4" />
