@@ -12,17 +12,17 @@ class SavedJobListingSeeder extends Seeder
     {
         $savedJobs = [
             'seeker@example.com' => [
-                'Senior Laravel Developer',
-                'Frontend Developer (React)',
-                'Data Analyst',
+                'مطوّر Laravel أول',
+                'مطوّر واجهات أمامية (React)',
+                'محلل بيانات',
             ],
             'sara@example.com' => [
-                'UI/UX Designer',
-                'Technical Writer',
+                'مصمم تجربة وواجهة المستخدم',
+                'كاتب تقني',
             ],
             'omar@example.com' => [
-                'Data Analyst',
-                'DevOps Engineer',
+                'محلل بيانات',
+                'مهندس DevOps',
             ],
         ];
 

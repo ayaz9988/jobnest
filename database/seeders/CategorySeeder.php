@@ -11,49 +11,49 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             'technology' => [
-                'name' => 'Technology',
+                'name' => 'التقنية',
                 'children' => [
-                    'software-development' => 'Software Development',
-                    'data-analytics' => 'Data & Analytics',
-                    'it-support' => 'IT Support',
+                    'software-development' => 'تطوير البرمجيات',
+                    'data-analytics' => 'البيانات والتحليلات',
+                    'it-support' => 'الدعم التقني',
                 ],
             ],
             'design' => [
-                'name' => 'Design',
+                'name' => 'التصميم',
                 'children' => [
-                    'ui-ux-design' => 'UI/UX Design',
-                    'graphic-design' => 'Graphic Design',
+                    'ui-ux-design' => 'تصميم واجهات وتجارب المستخدم',
+                    'graphic-design' => 'التصميم الجرافيكي',
                 ],
             ],
             'marketing' => [
-                'name' => 'Marketing',
+                'name' => 'التسويق',
                 'children' => [
-                    'digital-marketing' => 'Digital Marketing',
-                    'content-writing' => 'Content Writing',
+                    'digital-marketing' => 'التسويق الرقمي',
+                    'content-writing' => 'كتابة المحتوى',
                 ],
             ],
             'sales' => [
-                'name' => 'Sales',
+                'name' => 'المبيعات',
                 'children' => [],
             ],
             'customer-support' => [
-                'name' => 'Customer Support',
+                'name' => 'دعم العملاء',
                 'children' => [],
             ],
             'finance' => [
-                'name' => 'Finance',
+                'name' => 'المالية',
                 'children' => [],
             ],
         ];
 
         foreach ($categories as $slug => $parent) {
-            $parentCategory = Category::firstOrCreate(
+            $parentCategory = Category::updateOrCreate(
                 ['slug' => $slug],
                 ['name' => $parent['name']],
             );
 
             foreach ($parent['children'] as $childSlug => $childName) {
-                Category::firstOrCreate(
+                Category::updateOrCreate(
                     ['slug' => $childSlug],
                     [
                         'name' => $childName,

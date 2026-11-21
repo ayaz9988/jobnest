@@ -267,10 +267,12 @@ new #[Title('تفاصيل الوظيفة')] class extends Component {
                         <dt class="text-neutral-500 dark:text-neutral-400">الراتب</dt>
                         <dd class="font-medium text-neutral-900 dark:text-white">
                             @if ($jobListing->salary_min || $jobListing->salary_max)
-                                {{ $jobListing->salary_min ? number_format($jobListing->salary_min) : '—' }}
-                                -
-                                {{ $jobListing->salary_max ? number_format($jobListing->salary_max) : '—' }}
-                                {{ $jobListing->salary_currency }}
+                                <span dir="ltr">
+                                    {{ $jobListing->salary_min ? number_format($jobListing->salary_min) : '—' }}
+                                    -
+                                    {{ $jobListing->salary_max ? number_format($jobListing->salary_max) : '—' }}
+                                    {{ $jobListing->salary_currency }}
+                                </span>
                             @else
                                 غير محدد
                             @endif
