@@ -124,21 +124,39 @@ new #[Title('الوظائف')] class extends Component {
 }; ?>
 
 <div class="flex w-full flex-1 flex-col gap-6">
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-            <h1 class="text-xl font-semibold text-neutral-900 dark:text-white">الوظائف عن بُعد</h1>
-            <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                ابحث عن الوظيفة المناسبة لك وطبّق بسيرتك الذاتية في دقيقة.
-            </p>
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-bl from-violet-600 via-violet-700 to-indigo-950 px-6 py-8 text-white shadow-lg shadow-violet-900/10 sm:px-8">
+        <div class="pointer-events-none absolute -top-16 -start-10 size-48 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="pointer-events-none absolute -bottom-24 -end-10 size-56 rounded-full bg-violet-300/20 blur-3xl"></div>
+
+        <div class="relative flex flex-wrap items-end justify-between gap-4">
+            <div class="max-w-xl">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-violet-50 ring-1 ring-white/20">
+                    <flux:icon.sparkles class="size-3.5" />
+                    وظائف جديدة كل يوم
+                </span>
+
+                <h1 class="mt-3 text-2xl font-bold leading-snug sm:text-3xl">
+                    اعثر على وظيفتك القادمة
+                </h1>
+
+                <p class="mt-2 text-sm leading-6 text-violet-50/90">
+                    تصفّح وظائف الشركات العربية، احفظ ما يناسبك، وقدّم بسيرتك الذاتية في دقيقة.
+                </p>
+            </div>
+
+            <a
+                href="{{ route('jobs.saved') }}"
+                wire:navigate
+                class="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/30 backdrop-blur transition hover:bg-white/25"
+            >
+                <flux:icon.bookmark class="size-4" />
+                الوظائف المحفوظة
+            </a>
         </div>
+    </section>
 
-        <flux:button :href="route('jobs.saved')" variant="filled" icon="bookmark" wire:navigate>
-            الوظائف المحفوظة
-        </flux:button>
-    </div>
-
-    <section class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <section class="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-5">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
             <flux:input
                 wire:model.live.debounce.400ms="search"
                 label="بحث"
@@ -152,8 +170,11 @@ new #[Title('الوظائف')] class extends Component {
                 label="الموقع"
                 type="text"
                 placeholder="مثال: الرياض، السعودية"
+                icon="map-pin"
             />
+        </div>
 
+        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <flux:select wire:model.live="categoryId" label="التصنيف" placeholder="جميع التصنيفات">
                 @foreach ($this->categories as $category)
                     <flux:select.option value="{{ $category->id }}">{{ $category->name }}</flux:select.option>
@@ -179,24 +200,32 @@ new #[Title('الوظائف')] class extends Component {
             </flux:select>
         </div>
 
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">
-                {{ $this->jobs->total() }} وظيفة متاحة
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3 dark:border-zinc-800">
+            <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                {{ number_format($this->jobs->total()) }} وظيفة متاحة
             </p>
 
-            <flux:button size="sm" variant="ghost" wire:click="resetFilters">
+            <flux:button size="sm" variant="ghost" icon="x-mark" wire:click="resetFilters">
                 مسح الفلاتر
             </flux:button>
         </div>
     </section>
 
-    <div class="space-y-4">
+    <div class="grid auto-rows-fr gap-4 lg:grid-cols-2">
         @forelse ($this->jobs as $job)
             <article
-                class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-zinc-900"
+                class="flex h-full flex-col rounded-2xl border border-neutral-200 bg-white p-5 transition hover:border-violet-300 hover:shadow-lg hover:shadow-violet-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-violet-700/60"
                 wire:key="job-{{ $job->id }}"
             >
-                <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
+                        @if ($job->postedBy)
+                            <span class="text-sm font-semibold">{{ $job->postedBy->initials() }}</span>
+                        @else
+                            <flux:icon.building-office-2 class="size-5" />
+                        @endif
+                    </div>
+
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
                             <flux:link
@@ -207,7 +236,7 @@ new #[Title('الوظائف')] class extends Component {
                                 {{ $job->title }}
                             </flux:link>
 
-                            <flux:badge size="sm" color="blue">
+                            <flux:badge size="sm" color="violet">
                                 {{ \App\Support\JobListingOptions::workplaceType($job->workplace_type) }}
                             </flux:badge>
 
@@ -216,60 +245,102 @@ new #[Title('الوظائف')] class extends Component {
                             </flux:badge>
                         </div>
 
-                        <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            @if ($job->category)
-                                {{ $job->category->name }}
-                                ·
-                            @endif
-                            {{ $job->location ?: 'غير محدد' }}
+                        <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
                             @if ($job->postedBy)
-                                · نُشرت بواسطة {{ $job->postedBy->name }}
+                                <span class="inline-flex items-center gap-1">
+                                    <flux:icon.building-office-2 class="size-3.5" />
+                                    {{ $job->postedBy->name }}
+                                </span>
                             @endif
-                        </p>
 
-                        <p class="mt-3 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-300">
-                            {{ \Illuminate\Support\Str::limit($job->description, 180) }}
-                        </p>
+                            <span class="inline-flex items-center gap-1">
+                                <flux:icon.map-pin class="size-3.5" />
+                                {{ $job->location ?: 'غير محدد' }}
+                            </span>
 
-                        @if ($job->skills->isNotEmpty())
-                            <div class="mt-3 flex flex-wrap gap-1.5">
-                                @foreach ($job->skills as $skill)
-                                    <flux:badge size="sm" :color="$skill->pivot->is_required ? 'amber' : 'zinc'">
-                                        {{ $skill->name }}
-                                    </flux:badge>
-                                @endforeach
-                            </div>
-                        @endif
+                            @if ($job->published_at)
+                                <span class="inline-flex items-center gap-1">
+                                    <flux:icon.clock class="size-3.5" />
+                                    {{ $job->published_at->locale('ar')->diffForHumans() }}
+                                </span>
+                            @endif
+                        </div>
                     </div>
 
-                    <div class="flex flex-col items-end gap-2">
+                    @if (auth()->user()->isSeeker())
+                        @php($isSaved = in_array($job->id, $this->savedIds, true))
+
+                        <flux:button
+                            size="sm"
+                            :variant="$isSaved ? 'primary' : 'ghost'"
+                            icon="bookmark"
+                            wire:click="toggleSave({{ $job->id }})"
+                            :aria-label="$isSaved ? 'إزالة الوظيفة من المحفوظات' : 'حفظ الوظيفة'"
+                        >
+                            <span class="max-sm:hidden">{{ $isSaved ? 'محفوظة' : 'حفظ' }}</span>
+                        </flux:button>
+                    @endif
+                </div>
+
+                <p class="mt-3 line-clamp-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                    {{ \Illuminate\Support\Str::limit($job->description, 180) }}
+                </p>
+
+                @if ($job->skills->isNotEmpty())
+                    <div class="mt-3 flex flex-wrap gap-1.5">
+                        @foreach ($job->skills as $skill)
+                            <flux:badge size="sm" :color="$skill->pivot->is_required ? 'amber' : 'zinc'">
+                                {{ $skill->name }}
+                            </flux:badge>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="mt-4 flex-1"></div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 pt-4 dark:border-zinc-800">
+                    <div class="flex items-center gap-1.5 text-sm text-neutral-700 dark:text-neutral-200">
+                        <flux:icon.banknotes class="size-4 text-neutral-400" />
+
                         @if ($job->salary_min || $job->salary_max)
-                            <span class="text-sm font-medium text-neutral-900 dark:text-white">
+                            <span class="font-semibold" dir="ltr">
                                 {{ $job->salary_min ? number_format($job->salary_min) : '—' }}
                                 -
                                 {{ $job->salary_max ? number_format($job->salary_max) : '—' }}
-                                {{ $job->salary_currency }}
+                                <span class="text-xs font-normal text-neutral-500">{{ $job->salary_currency }}</span>
                             </span>
-                        @endif
-
-                        @if (auth()->user()->isSeeker())
-                            <flux:button
-                                size="sm"
-                                :variant="in_array($job->id, $this->savedIds, true) ? 'primary' : 'filled'"
-                                icon="bookmark"
-                                wire:click="toggleSave({{ $job->id }})"
-                            >
-                                {{ in_array($job->id, $this->savedIds, true) ? 'محفوظة' : 'حفظ' }}
-                            </flux:button>
+                        @else
+                            <span class="text-xs text-neutral-500">الراتب غير محدد</span>
                         @endif
                     </div>
+
+                    <a
+                        href="{{ route('jobs.show', $job) }}"
+                        wire:navigate
+                        class="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 transition hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-300"
+                    >
+                        عرض التفاصيل
+                        <flux:icon.arrow-left class="size-4" />
+                    </a>
                 </div>
             </article>
         @empty
-            <div class="rounded-xl border border-dashed border-neutral-300 bg-white p-10 text-center dark:border-neutral-600 dark:bg-zinc-900">
-                <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                    لا توجد وظائف مطابقة لبحثك حاليًا.
+            <div class="col-span-full rounded-2xl border border-dashed border-neutral-300 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-400 dark:bg-zinc-800">
+                    <flux:icon.magnifying-glass class="size-6" />
+                </div>
+
+                <h2 class="mt-4 text-base font-semibold text-neutral-900 dark:text-white">
+                    لا توجد وظائف مطابقة
+                </h2>
+
+                <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                    جرّب تعديل كلمات البحث أو مسح الفلاتر لعرض جميع الوظائف.
                 </p>
+
+                <flux:button class="mt-4" size="sm" icon="arrow-path" wire:click="resetFilters">
+                    مسح الفلاتر
+                </flux:button>
             </div>
         @endforelse
     </div>
