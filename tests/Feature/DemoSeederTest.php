@@ -40,7 +40,7 @@ class DemoSeederTest extends TestCase
 
         $application = Application::query()
             ->whereHas('user', fn (Builder $query) => $query->where('email', 'seeker@example.com'))
-            ->whereHas('jobListing', fn (Builder $query) => $query->where('title', 'Senior Laravel Developer'))
+            ->whereHas('jobListing', fn (Builder $query) => $query->where('title', 'مطوّر Laravel أول'))
             ->firstOrFail();
 
         $this->assertSame(

@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Models\Resume;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 // Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth'])->group(function () {

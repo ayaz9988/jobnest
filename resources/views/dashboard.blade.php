@@ -57,7 +57,7 @@
                     </span>
                 </div>
 
-                <flux:progress class="mt-3" color="blue" :value="$completeness->percentage()" />
+                <flux:progress class="mt-3" color="violet" :value="$completeness->percentage()" />
 
                 @unless ($completeness->canApply())
                     <p class="mt-3 text-sm text-amber-800 dark:text-amber-200">
