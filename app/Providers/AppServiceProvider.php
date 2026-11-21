@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Observers\ApplicationObserver;
 use App\Policies\AdminPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -31,6 +32,14 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Application::observe(ApplicationObserver::class);
+
+        DatabaseNotification::creating(function (DatabaseNotification $notification): void {
+            if ($notification->getAttribute('sort_order') === null) {
+                $notification->forceFill([
+                    'sort_order' => (int) DatabaseNotification::query()->max('sort_order') + 1,
+                ]);
+            }
+        });
 
         Gate::policy(Admin::class, AdminPolicy::class);
     }
