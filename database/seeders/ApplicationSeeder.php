@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Application;
+use App\Models\ApplicationStatusHistory;
 use App\Models\JobListing;
 use App\Models\Resume;
 use App\Models\User;
@@ -64,6 +65,17 @@ class ApplicationSeeder extends Seeder
             ],
         ];
 
+        // DatabaseSeeder runs WithoutModelEvents, so the observer never records
+        // history for seeded applications. Recreate the expected path explicitly.
+        $historyPaths = [
+            Application::STATUS_APPLIED => [Application::STATUS_APPLIED],
+            Application::STATUS_WITHDRAWN => [Application::STATUS_APPLIED, Application::STATUS_WITHDRAWN],
+            Application::STATUS_REVIEWED => [Application::STATUS_APPLIED, Application::STATUS_REVIEWED],
+            Application::STATUS_REJECTED => [Application::STATUS_APPLIED, Application::STATUS_REJECTED],
+            Application::STATUS_INTERVIEW => [Application::STATUS_APPLIED, Application::STATUS_REVIEWED, Application::STATUS_INTERVIEW],
+            Application::STATUS_HIRED => [Application::STATUS_APPLIED, Application::STATUS_REVIEWED, Application::STATUS_INTERVIEW, Application::STATUS_HIRED],
+        ];
+
         foreach ($applications as $data) {
             $user = User::query()->where('email', $data['email'])->firstOrFail();
             $job = JobListing::query()->where('title', $data['job'])->firstOrFail();
@@ -72,7 +84,7 @@ class ApplicationSeeder extends Seeder
                 ->orderByDesc('is_primary')
                 ->first();
 
-            Application::firstOrCreate(
+            $application = Application::firstOrCreate(
                 [
                     'user_id' => $user->id,
                     'job_listing_id' => $job->id,
@@ -84,6 +96,32 @@ class ApplicationSeeder extends Seeder
                     'applied_at' => now()->subDays($data['days_ago']),
                 ],
             );
+
+            if ($application->statusHistories()->exists()) {
+                continue;
+            }
+
+            $path = $historyPaths[$application->status];
+            $appliedAt = $application->applied_at ?? now();
+            $stepHours = count($path) > 1
+                ? max(1, intdiv($data['days_ago'] * 24, count($path)))
+                : 0;
+
+            $previousStatus = null;
+
+            foreach ($path as $index => $status) {
+                $occurredAt = $appliedAt->copy()->addHours($stepHours * $index);
+
+                ApplicationStatusHistory::forceCreate([
+                    'application_id' => $application->id,
+                    'from_status' => $previousStatus,
+                    'to_status' => $status,
+                    'created_at' => $occurredAt,
+                    'updated_at' => $occurredAt,
+                ]);
+
+                $previousStatus = $status;
+            }
         }
     }
 }

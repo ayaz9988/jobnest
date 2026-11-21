@@ -59,6 +59,7 @@ new #[Title('الإشعارات')] class extends Component {
     public function notifications(): LengthAwarePaginator
     {
         return Auth::user()->notifications()
+            ->orderByDesc('sort_order')
             ->latest()
             ->paginate(15);
     }
