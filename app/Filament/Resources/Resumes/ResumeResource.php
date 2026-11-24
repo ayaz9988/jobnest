@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Resumes;
 
+use App\Filament\Concerns\HasTranslatedResourceLabels;
 use App\Filament\Resources\Resumes\Pages\CreateResume;
 use App\Filament\Resources\Resumes\Pages\EditResume;
 use App\Filament\Resources\Resumes\Pages\ListResumes;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class ResumeResource extends Resource
 {
+    use HasTranslatedResourceLabels;
+
     protected static ?string $model = Resume::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

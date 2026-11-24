@@ -17,7 +17,7 @@ class EditResume extends EditRecord
     {
         return [
             Action::make('download')
-                ->label('Download')
+                ->label(__('admin.actions.download'))
                 ->icon(Heroicon::OutlinedArrowDownTray)
                 ->url(fn (): string => route(
                     'filament.admin.resumes.download',

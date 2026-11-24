@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Applications;
 
+use App\Filament\Concerns\HasTranslatedResourceLabels;
 use App\Filament\Resources\Applications\Pages\ListApplications;
 use App\Filament\Resources\Applications\Pages\ViewApplication;
 use App\Filament\Resources\Applications\Schemas\ApplicationForm;
@@ -15,6 +16,8 @@ use Filament\Tables\Table;
 
 class ApplicationResource extends Resource
 {
+    use HasTranslatedResourceLabels;
+
     protected static ?string $model = Application::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

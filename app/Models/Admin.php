@@ -72,7 +72,7 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
 
             if ($activeSuperAdmins->count() <= 1) {
                 throw new RuntimeException(
-                    'The last active super admin cannot be deleted.',
+                    __('admin.errors.last_super_admin_delete'),
                 );
             }
         });
@@ -97,7 +97,7 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
 
             if ($otherActiveSuperAdmins === 0) {
                 throw ValidationException::withMessages([
-                    'role' => 'The last active super admin cannot be deactivated or demoted.',
+                    'role' => __('admin.errors.last_super_admin_demote'),
                 ]);
             }
 
@@ -107,7 +107,7 @@ class Admin extends Authenticatable implements FilamentUser, HasAppAuthenticatio
                 && auth('admin')->id() === $admin->getKey()
             ) {
                 throw ValidationException::withMessages([
-                    'role' => 'You cannot change your own super admin role.',
+                    'role' => __('admin.errors.cannot_change_own_role'),
                 ]);
             }
         });

@@ -12,11 +12,17 @@ class ApplicationsChart extends ChartWidget
 
     protected int|string|array $columnSpan = 1;
 
-    protected ?string $heading = 'Applications over time';
-
-    protected ?string $description = 'Last 30 days';
-
     protected string $color = 'warning';
+
+    public function getHeading(): ?string
+    {
+        return __('admin.widgets.applications_chart.heading');
+    }
+
+    public function getDescription(): ?string
+    {
+        return __('admin.widgets.applications_chart.description');
+    }
 
     protected function getData(): array
     {
@@ -33,14 +39,14 @@ class ApplicationsChart extends ChartWidget
         $data = [];
 
         foreach (CarbonPeriod::create($start, '1 day', $end) as $date) {
-            $labels[] = $date->format('M j');
+            $labels[] = $date->translatedFormat('M j');
             $data[] = (int) ($counts[$date->toDateString()] ?? 0);
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Applications',
+                    'label' => __('admin.widgets.applications_chart.dataset'),
                     'data' => $data,
                     'tension' => 0.3,
                     'fill' => true,

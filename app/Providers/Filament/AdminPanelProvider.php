@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Http\Controllers\ResumeDownloadController;
+use BezhanSalleh\LanguageSwitch\Http\Middleware\SwitchLanguageLocale;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -30,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->strictAuthorization()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->profile()
             ->passwordReset()
@@ -67,6 +69,9 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+            ])
+            ->persistentMiddleware([
+                SwitchLanguageLocale::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

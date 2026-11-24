@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2633d741c0cdf5bf2cea21f74f11f653",
+    "content-hash": "70a089ed18aba57a5f5995c1b97d8660",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -125,6 +125,92 @@
                 "source": "https://github.com/Bacon/BaconQrCode/tree/v3.1.1"
             },
             "time": "2026-04-05T21:06:35+00:00"
+        },
+        {
+            "name": "bezhansalleh/filament-language-switch",
+            "version": "5.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bezhanSalleh/filament-language-switch.git",
+                "reference": "f22e68f9301a3452dedf41745d8b2419d8bcfa98"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bezhanSalleh/filament-language-switch/zipball/f22e68f9301a3452dedf41745d8b2419d8bcfa98",
+                "reference": "f22e68f9301a3452dedf41745d8b2419d8bcfa98",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.0|^5.0",
+                "illuminate/contracts": "^11.28|^12.0|^13.0",
+                "illuminate/support": "^11.28|^12.0|^13.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.9"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^8.0",
+                "orchestra/testbench": "^9.0|^10.0|^11.0",
+                "pestphp/pest": "^3.8|^4.0|^5.0",
+                "pestphp/pest-plugin-laravel": "^3.2|^4.0|^5.0",
+                "pestphp/pest-plugin-livewire": "^3.0|^4.0|^5.0",
+                "pestphp/pest-plugin-type-coverage": "^3.6|^4.0|^5.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^11.0|^12.0|^13.0",
+                "rector/rector": "^2.2",
+                "spatie/laravel-ray": "^1.43"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "BezhanSalleh\\LanguageSwitch\\LanguageSwitchServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "BezhanSalleh\\LanguageSwitch\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bezhan Salleh",
+                    "email": "bezhan_salleh@yahoo.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Zero config Language Switch(Changer/Localizer) plugin for filamentphp admin",
+            "homepage": "https://github.com/bezhansalleh/filament-language-switch",
+            "keywords": [
+                "bezhanSalleh",
+                "filament-language-changer",
+                "filament-language-switch",
+                "filament-locale-changer",
+                "filament-localizer",
+                "filament-plugin",
+                "filamentphp",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/bezhanSalleh/filament-language-switch/issues",
+                "source": "https://github.com/bezhanSalleh/filament-language-switch/tree/5.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/bezhanSalleh",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-11-05T07:08:23+00:00"
         },
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -13683,5 +13769,5 @@
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

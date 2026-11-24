@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories\Tables;
 
+use App\Support\AdminTranslations;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,19 +16,23 @@ class CategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(AdminTranslations::field('name'))
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label(AdminTranslations::field('slug'))
                     ->searchable(),
                 TextColumn::make('parent.name')
-                    ->label('Parent category')
+                    ->label(AdminTranslations::field('parent_category'))
                     ->placeholder('—')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label(AdminTranslations::field('created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(AdminTranslations::field('updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

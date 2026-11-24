@@ -3,6 +3,7 @@
 namespace App\Actions\Applications;
 
 use App\Models\Application;
+use App\Support\AdminTranslations;
 use Illuminate\Support\Facades\DB;
 
 class TransitionApplication
@@ -26,7 +27,10 @@ class TransitionApplication
 
             if (! $this->canTransition($application, $to)) {
                 throw new ApplicationTransitionException(
-                    "Cannot move this application from {$application->status} to {$to}.",
+                    __('admin.errors.invalid_application_transition', [
+                        'from' => AdminTranslations::option('application_statuses', $application->status),
+                        'to' => AdminTranslations::option('application_statuses', $to),
+                    ])
                 );
             }
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Skills\Tables;
 
+use App\Support\AdminTranslations;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,12 +16,15 @@ class SkillsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(AdminTranslations::field('name'))
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label(AdminTranslations::field('created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(AdminTranslations::field('updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
