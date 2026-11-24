@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\JobListings;
 
+use App\Filament\Concerns\HasTranslatedResourceLabels;
 use App\Filament\Resources\JobListings\Pages\CreateJobListing;
 use App\Filament\Resources\JobListings\Pages\EditJobListing;
 use App\Filament\Resources\JobListings\Pages\ListJobListings;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class JobListingResource extends Resource
 {
+    use HasTranslatedResourceLabels;
+
     protected static ?string $model = JobListing::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

@@ -34,7 +34,7 @@ class UpdateAdmin
             if ($isActiveSuperAdmin && ! $willRemainActiveSuperAdmin) {
                 if ($activeSuperAdmins->count() <= 1) {
                     throw ValidationException::withMessages([
-                        'role' => 'The last active super admin cannot be demoted or deactivated.',
+                        'role' => __('admin.errors.last_super_admin_demote'),
                     ]);
                 }
             }
@@ -42,13 +42,13 @@ class UpdateAdmin
             if ($actor->is($target)) {
                 if ($newRole !== $target->role) {
                     throw ValidationException::withMessages([
-                        'role' => 'You cannot change your own role.',
+                        'role' => __('admin.errors.cannot_change_own_role'),
                     ]);
                 }
 
                 if (! $newIsActive) {
                     throw ValidationException::withMessages([
-                        'is_active' => 'You cannot deactivate your own account.',
+                        'is_active' => __('admin.errors.cannot_deactivate_self'),
                     ]);
                 }
             }

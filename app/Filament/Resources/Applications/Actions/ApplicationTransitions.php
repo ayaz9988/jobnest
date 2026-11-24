@@ -22,25 +22,25 @@ class ApplicationTransitions
         return [
             static::action(
                 name: 'markReviewed',
-                label: 'Mark reviewed',
+                label: __('admin.actions.mark_reviewed'),
                 to: 'reviewed',
                 icon: Heroicon::OutlinedCheck,
             ),
             static::action(
                 name: 'scheduleInterview',
-                label: 'Schedule interview',
+                label: __('admin.actions.schedule_interview'),
                 to: 'interview',
                 icon: Heroicon::OutlinedCalendar,
             ),
             static::action(
                 name: 'markHired',
-                label: 'Mark hired',
+                label: __('admin.actions.mark_hired'),
                 to: 'hired',
                 icon: Heroicon::OutlinedCheckBadge,
             ),
             static::action(
                 name: 'reject',
-                label: 'Reject',
+                label: __('admin.actions.reject'),
                 to: 'rejected',
                 icon: Heroicon::OutlinedXMark,
                 color: 'danger',
@@ -75,7 +75,7 @@ class ApplicationTransitions
 
                     Notification::make()
                         ->danger()
-                        ->title('Application not updated')
+                        ->title(__('admin.notifications.application_not_updated'))
                         ->body($exception->getMessage())
                         ->send();
 
@@ -91,7 +91,7 @@ class ApplicationTransitions
 
                 Notification::make()
                     ->success()
-                    ->title('Application status updated')
+                    ->title(__('admin.notifications.application_status_updated'))
                     ->send();
             });
     }

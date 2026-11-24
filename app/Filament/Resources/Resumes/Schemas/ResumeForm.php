@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Resumes\Schemas;
 
+use App\Support\AdminTranslations;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -14,12 +15,13 @@ class ResumeForm
         return $schema
             ->components([
                 Select::make('user_id')
+                    ->label(AdminTranslations::field('user'))
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 FileUpload::make('file_path')
-                    ->label('Resume file')
+                    ->label(AdminTranslations::field('resume_file'))
                     ->disk('local')
                     ->directory('resumes')
                     ->visibility('private')
@@ -32,8 +34,9 @@ class ResumeForm
                     ->storeFileNamesIn('file_name')
                     ->preventFilePathTampering()
                     ->required()
-                    ->helperText('PDF, DOC or DOCX up to 5 MB.'),
+                    ->helperText(__('admin.helper_text.resume_file')),
                 Toggle::make('is_primary')
+                    ->label(AdminTranslations::field('is_primary'))
                     ->required(),
             ]);
     }

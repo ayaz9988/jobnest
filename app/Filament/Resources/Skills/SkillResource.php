@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Skills;
 
+use App\Filament\Concerns\HasTranslatedResourceLabels;
 use App\Filament\Resources\Skills\Pages\CreateSkill;
 use App\Filament\Resources\Skills\Pages\EditSkill;
 use App\Filament\Resources\Skills\Pages\ListSkills;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class SkillResource extends Resource
 {
+    use HasTranslatedResourceLabels;
+
     protected static ?string $model = Skill::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

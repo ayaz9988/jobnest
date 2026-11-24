@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Application;
+use App\Support\AdminTranslations;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -17,7 +18,7 @@ class LatestApplications extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Latest applications')
+            ->heading(__('admin.widgets.latest_applications.heading'))
             ->query(fn (): Builder => Application::query()
                 ->with(['user', 'jobListing'])
                 ->latest('applied_at')
@@ -25,14 +26,15 @@ class LatestApplications extends TableWidget
             )
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Applicant')
+                    ->label(AdminTranslations::field('applicant'))
                     ->placeholder('-'),
                 TextColumn::make('jobListing.title')
-                    ->label('Job listing')
+                    ->label(AdminTranslations::field('job_listing'))
                     ->placeholder('-'),
                 TextColumn::make('status')
+                    ->label(AdminTranslations::field('status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->formatStateUsing(fn (?string $state): string => AdminTranslations::option('application_statuses', $state))
                     ->color(fn (string $state): string => match ($state) {
                         'applied' => 'info',
                         'reviewed' => 'warning',
@@ -42,7 +44,7 @@ class LatestApplications extends TableWidget
                         default => 'gray',
                     }),
                 TextColumn::make('applied_at')
-                    ->label('Applied at')
+                    ->label(AdminTranslations::field('applied_at'))
                     ->dateTime(),
             ])
             ->paginated(false);

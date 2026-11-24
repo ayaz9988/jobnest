@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Applications\Schemas;
 
 use App\Models\Resume;
+use App\Support\AdminTranslations;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -19,6 +20,7 @@ class ApplicationForm
         return $schema
             ->components([
                 Select::make('user_id')
+                    ->label(AdminTranslations::field('applicant'))
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
@@ -26,12 +28,13 @@ class ApplicationForm
                     ->afterStateUpdated(fn (Set $set) => $set('resume_id', null))
                     ->required(),
                 Select::make('job_listing_id')
+                    ->label(AdminTranslations::field('job_listing'))
                     ->relationship('jobListing', 'title')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Select::make('resume_id')
-                    ->label('Resume')
+                    ->label(AdminTranslations::field('resume'))
                     ->relationship('resume', 'file_name',
                         fn (Builder $query, Get $get) => $query
                             ->when(
@@ -44,24 +47,20 @@ class ApplicationForm
                     ->searchable(['file_name'])
                     ->preload()
                     ->disabled(fn (Get $get) => blank($get('user_id')))
-                    ->helperText('Choose an applicant first.')
+                    ->helperText(__('admin.helper_text.choose_applicant_first'))
                     ->rule(fn (Get $get) => Rule::exists('resumes', 'id')
                         ->where('user_id', $get('user_id'))),
                 Select::make('status')
-                    ->options([
-                        'applied' => 'Applied',
-                        'reviewed' => 'Reviewed',
-                        'interview' => 'Interview',
-                        'withdraw' => 'Withdraw',
-                        'hired' => 'Hired',
-                        'rejected' => 'Rejected',
-                    ])
+                    ->label(AdminTranslations::field('status'))
+                    ->options(AdminTranslations::options('application_statuses'))
                     ->default('applied')
                     ->required(),
                 Textarea::make('cover_letter')
+                    ->label(AdminTranslations::field('cover_letter'))
                     ->default(null)
                     ->columnSpanFull(),
                 DateTimePicker::make('applied_at')
+                    ->label(AdminTranslations::field('applied_at'))
                     ->required()
                     ->default(now()),
             ]);

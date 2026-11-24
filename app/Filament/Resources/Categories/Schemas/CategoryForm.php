@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories\Schemas;
 
 use App\Models\Category;
+use App\Support\AdminTranslations;
 use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -16,11 +17,13 @@ class CategoryForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label(AdminTranslations::field('name'))
                     ->required(),
                 TextInput::make('slug')
+                    ->label(AdminTranslations::field('slug'))
                     ->required(),
                 Select::make('parent_id')
-                    ->label('Parent category')
+                    ->label(AdminTranslations::field('parent_category'))
                     ->relationship('parent', 'name',
                         fn (Builder $query, ?Category $record) => $query
                             ->when($record, fn (Builder $query) => $query
@@ -29,7 +32,7 @@ class CategoryForm
                     )
                     ->searchable()
                     ->preload()
-                    ->placeholder('None (top-level)')
+                    ->placeholder(__('admin.placeholders.none_top_level'))
                     ->rule(
                         fn (?Category $record) => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
                             if (! $record || blank($value)) {
@@ -37,7 +40,7 @@ class CategoryForm
                             }
 
                             if ((int) $value === $record->getKey() || in_array((int) $value, $record->descendantIds(), true)) {
-                                $fail('A Category cannot be its own parent or one of its descendants.');
+                                $fail(__('admin.errors.category_parent_self'));
                             }
                         }
                     ),

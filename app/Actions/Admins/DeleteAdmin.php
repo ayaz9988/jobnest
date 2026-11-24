@@ -23,7 +23,7 @@ class DeleteAdmin
                 ->firstOrFail();
 
             if ($actor->is($target)) {
-                throw new RuntimeException('You cannot delete yourself.');
+                throw new RuntimeException(__('admin.errors.cannot_delete_self'));
             }
 
             if (
@@ -32,7 +32,7 @@ class DeleteAdmin
                 && $activeSuperAdmins->count() <= 1
             ) {
                 throw new RuntimeException(
-                    'The last active super admin cannot be deleted.'
+                    __('admin.errors.last_super_admin_delete')
                 );
             }
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\JobListing;
+use App\Support\AdminTranslations;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -16,7 +17,7 @@ class LatestJobListings extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Latest job listings')
+            ->heading(__('admin.widgets.latest_job_listings.heading'))
             ->query(
                 JobListing::query()
                     ->with(['postedBy', 'category'])
@@ -25,19 +26,17 @@ class LatestJobListings extends TableWidget
             )
             ->columns([
                 TextColumn::make('title')
-                    ->label('Title'),
-
+                    ->label(AdminTranslations::field('title')),
                 TextColumn::make('postedBy.name')
-                    ->label('Employer')
+                    ->label(AdminTranslations::field('employer'))
                     ->placeholder('—'),
-
                 TextColumn::make('category.name')
-                    ->label('Category')
+                    ->label(AdminTranslations::field('category'))
                     ->placeholder('—'),
-
                 TextColumn::make('status')
+                    ->label(AdminTranslations::field('status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->formatStateUsing(fn (?string $state): string => AdminTranslations::option('job_statuses', $state))
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
                         'open' => 'success',
@@ -47,7 +46,7 @@ class LatestJobListings extends TableWidget
                     }),
 
                 TextColumn::make('published_at')
-                    ->label('Published at')
+                    ->label(AdminTranslations::field('published_at'))
                     ->dateTime()
                     ->placeholder('—'),
             ])
